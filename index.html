@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wechseljahre-Tagebuch</title>
+<meta name="theme-color" content="#2a8a98">
+<meta name="description" content="Privates Wechseljahre-Tagebuch – lokal auf diesem Gerät gespeichert.">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<style>
+/* Layout idea: a phone-first diary with a bottom tab bar; Oestrogel is always teal, Utrogestan always rose, as on the doctor's leaflet. */
+:root{
+  --bg:#f2f5f6; --surface:#ffffff; --ink:#1b2a31; --muted:#5d6e76; --line:#dbe3e6; --soft:#e8eef0;
+  --estro:#2a8a98; --estro-soft:#dcf0f2; --utro:#cf6377; --utro-soft:#f9e3e7;
+  --good:#3a8a57; --warn:#b97c12; --bad:#bb4039; --good-soft:#e1f1e6; --warn-soft:#f8ecd4; --bad-soft:#f6dfdd;
+  --display:"Fraunces", Georgia, "Times New Roman", serif;
+  --body:"Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1518; --surface:#162025; --ink:#e4edf0; --muted:#94a5ad; --line:#26343a; --soft:#1d2a30;
+    --estro:#5bbfcb; --estro-soft:#173a3f; --utro:#ee8fa0; --utro-soft:#43232b;
+    --good:#6cc28a; --warn:#e2ac4b; --bad:#ec7b73; --good-soft:#1b3424; --warn-soft:#3a2e15; --bad-soft:#3d1f1d;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1518; --surface:#162025; --ink:#e4edf0; --muted:#94a5ad; --line:#26343a; --soft:#1d2a30;
+  --estro:#5bbfcb; --estro-soft:#173a3f; --utro:#ee8fa0; --utro-soft:#43232b;
+  --good:#6cc28a; --warn:#e2ac4b; --bad:#ec7b73; --good-soft:#1b3424; --warn-soft:#3a2e15; --bad-soft:#3d1f1d;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%}
+body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--estro);outline-offset:2px}
+h1,h2,h3{text-wrap:balance;margin:0}
+h1{font-family:var(--display);font-weight:600;font-size:1.65rem;line-height:1.15}
+h2{font-family:var(--display);font-weight:600;font-size:1.2rem}
+h3{font-size:.95rem;font-weight:600}
+.num{font-variant-numeric:tabular-nums}
+.wrap{max-width:560px;margin:0 auto;padding:calc(14px + env(safe-area-inset-top)) 16px 16px}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:14px}
+.eyebrow{font-size:.78rem;color:var(--muted);font-weight:600;letter-spacing:.02em}
+.stack{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.card.estro{border-left:5px solid var(--estro)}
+.card.utro{border-left:5px solid var(--utro)}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.between{justify-content:space-between}
+.muted{color:var(--muted)}
+.small{font-size:.85rem}
+.tiny{font-size:.75rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--muted);font-weight:500}
+input[type=text],input[type=date],input[type=time],input[type=number],select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 10px;color:var(--ink);width:100%;min-width:0}
+textarea{min-height:76px;resize:vertical}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:9px 16px;font-weight:600;font-size:.92rem}
+.btn.primary{background:var(--estro);border-color:var(--estro);color:#fff}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn:disabled{opacity:.45;cursor:default}
+.iconbtn{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:inline-grid;place-items:center;font-size:1.1rem;line-height:1}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:.88rem;font-weight:500}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.estro .chip[aria-pressed="true"]{background:var(--estro);border-color:var(--estro);color:#fff}
+.utro .chip[aria-pressed="true"]{background:var(--utro);border-color:var(--utro);color:#fff}
+.seg{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.seg button{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 0;font-weight:600;font-size:.9rem}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.take{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;background:none;padding:0}
+.ring{width:46px;height:46px;flex:none;border-radius:50%;border:2.5px solid currentColor;display:grid;place-items:center;font-size:1.3rem;font-weight:700}
+.estro .ring{color:var(--estro)} .utro .ring{color:var(--utro)}
+.estro .on .ring{background:var(--estro);color:#fff;border-color:var(--estro)}
+.utro .on .ring{background:var(--utro);color:#fff;border-color:var(--utro)}
+.take .t1{font-weight:700;font-size:1.05rem}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.stepper button{border:0;background:var(--surface);width:38px;height:36px;font-size:1.15rem}
+.stepper span{min-width:44px;text-align:center;font-weight:700}
+.pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:.78rem;font-weight:600;white-space:nowrap}
+.sev0{background:var(--good-soft);color:var(--good)}
+.sev1{background:var(--soft);color:var(--muted)}
+.sev2{background:var(--warn-soft);color:var(--warn)}
+.sev3{background:var(--bad-soft);color:var(--bad)}
+.note{border-radius:12px;padding:10px 12px;font-size:.88rem;background:var(--soft)}
+.note.warn{background:var(--warn-soft);color:var(--ink)}
+.saved{font-size:.78rem;color:var(--muted);min-height:1em}
+.divider{height:1px;background:var(--line);margin:12px 0}
+/* tab bar */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom));z-index:5}
+nav.tabs .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+nav.tabs a{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:var(--muted);font-size:.72rem;font-weight:600;padding:4px 0;border-radius:10px}
+nav.tabs a svg{width:22px;height:22px}
+nav.tabs a[aria-current="page"]{color:var(--estro)}
+/* calendar */
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal .wd{font-size:.72rem;color:var(--muted);text-align:center;font-weight:600;padding-bottom:2px}
+.cal button{aspect-ratio:1/1.08;border:1px solid var(--line);background:var(--surface);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0;position:relative}
+.cal button.out{visibility:hidden}
+.cal button.today{border-color:var(--ink);border-width:2px}
+.cal button.future{opacity:.45}
+.cal .d{font-size:.85rem;font-weight:600}
+.dots{display:flex;gap:3px}
+.dot{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--line)}
+.dot.e.on{background:var(--estro);border-color:var(--estro)}
+.dot.u.on{background:var(--utro);border-color:var(--utro)}
+.dot.u.na{border-style:dotted;opacity:.5}
+.bleed{position:absolute;bottom:4px;left:30%;right:30%;height:3px;border-radius:2px;background:var(--bad)}
+.bleed.spot{opacity:.45}
+/* tiles */
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px}
+.tile .v{font-family:var(--display);font-size:1.6rem;font-weight:600;line-height:1.1}
+.tile .l{font-size:.78rem;color:var(--muted);font-weight:600}
+.bar{height:8px;border-radius:4px;background:var(--soft);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:4px}
+.chart{width:100%;height:auto;display:block}
+.chart text{fill:var(--muted);font-size:9.5px;font-family:var(--body)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.78rem;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.items .it{display:grid;grid-template-columns:1fr 112px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.items .it:last-child{border-bottom:0}
+.mrsq{padding:10px 0;border-bottom:1px solid var(--line)}
+.mrsq:last-child{border-bottom:0}
+.mrsq .seg button{font-size:.75rem;padding:8px 0;font-weight:600}
+.mrsq .seg button[aria-pressed="true"][data-v="0"]{background:var(--good);border-color:var(--good);color:#fff}
+.mrsq .seg button[aria-pressed="true"][data-v="1"]{background:#8aa2ac;border-color:#8aa2ac;color:#fff}
+.mrsq .seg button[aria-pressed="true"][data-v="2"]{background:var(--warn);border-color:var(--warn);color:#fff}
+.mrsq .seg button[aria-pressed="true"][data-v="3"],.mrsq .seg button[aria-pressed="true"][data-v="4"]{background:var(--bad);border-color:var(--bad);color:#fff}
+.list .li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.list .li:last-child{border-bottom:0}
+.welcome{background:linear-gradient(160deg,var(--estro-soft),var(--surface) 70%);border-color:var(--estro)}
+.banner{background:var(--warn-soft);border:1px solid var(--warn);border-radius:12px;padding:10px 12px;font-size:.88rem;display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.status{display:inline-flex;align-items:center;gap:6px;font-size:.75rem;color:var(--muted);font-weight:600}
+.status i{width:8px;height:8px;border-radius:50%;background:var(--warn)}
+.status.cloud i{background:var(--good)}
+pre.report{white-space:pre-wrap;font-family:var(--body);font-size:.85rem;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px;margin:0;max-height:420px;overflow:auto}
+.modal{position:fixed;inset:0;background:rgba(10,20,25,.45);display:grid;place-items:center;padding:16px;z-index:20}
+.modal .card{max-width:420px;width:100%}
+ul.tips{margin:6px 0 0;padding-left:18px}
+ul.tips li{margin:4px 0}
+a{color:var(--estro)}
+@media (max-width:380px){.tiles{grid-template-columns:1fr 1fr}.items .it{grid-template-columns:1fr 92px}}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<nav class="tabs" aria-label="Bereiche"><div class="in" id="tabs"></div></nav>
+<div id="modal"></div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- constants ---------- */
+const LS_KEY = "wj-tagebuch-v1";
+const PUMP_G = 1.25;      // 1 Hub Oestrogel = 1.25 g Gel = 0.75 mg Estradiol
+const PUMP_MG = 0.75;
+const MRS = [
+  ["Hitzewallungen, Schwitzen","Aufsteigende Hitze, Schweissausbrüche"],
+  ["Herzbeschwerden","Herzklopfen, Herzrasen, Herzstolpern, Beklemmung"],
+  ["Schlafstörungen","Ein- oder Durchschlafprobleme, zu frühes Aufwachen"],
+  ["Depressive Verstimmung","Mutlosigkeit, Traurigkeit, Antriebslosigkeit, Stimmungsschwankungen"],
+  ["Reizbarkeit","Nervosität, innere Anspannung, Aggressivität"],
+  ["Ängstlichkeit","Innere Unruhe, Panik"],
+  ["Erschöpfung","Körperlich und geistig: Leistung, Gedächtnis, Konzentration"],
+  ["Sexualprobleme","Veränderung von Verlangen, Aktivität, Befriedigung"],
+  ["Harnwegsbeschwerden","Beschwerden beim Wasserlassen, Harndrang, Harnverlust"],
+  ["Trockenheit der Scheide","Trockenheitsgefühl, Brennen, Beschwerden beim Verkehr"],
+  ["Gelenk- und Muskelbeschwerden","Gelenkschmerzen, rheumaähnliche Beschwerden"]
+];
+const LEVELS = ["keine","leicht","mittel","stark","sehr stark"];
+const SUB = {
+  soma:{name:"Körperlich",idx:[0,1,2,10],cut:[2,4,8]},
+  psych:{name:"Psychisch",idx:[3,4,5,6],cut:[1,3,6]},
+  uro:{name:"Urogenital",idx:[7,8,9],cut:[0,1,3]}
+};
+const TOTAL_CUT=[4,8,15];
+const SEV_LABEL=["keine/kaum","leicht","mittel","stark"];
+const SITES=["Arme","Schultern","Oberschenkel"];
+const BLEED=[["none","keine"],["spot","Schmier"],["light","leicht"],["heavy","stark"]];
+const FX=["Brustspannen","Kopfschmerzen","Blähungen","Übelkeit","Hautreizung","Müdigkeit tagsüber"];
+const SCALE5={sl:["sehr schlecht","schlecht","mittel","gut","sehr gut"],mo:["sehr tief","tief","mittel","gut","sehr gut"],en:["sehr wenig","wenig","mittel","gut","sehr gut"]};
+
+const DEF_SETTINGS = {
+  name:"", welcomed:false, start:"", estroPumps:2, utroMode:"none", ver:4, utroMg:100, utroFrom:1, utroTo:14,
+  bottleDate:"", bottleSize:80, packDate:"", packSize:30,
+  questions:[{id:"q1",text:"Vaginale lokale Therapie bei Trockenheit oder Harnwegsbeschwerden?",done:false}]
+};
+
+/* ---------- date helpers ---------- */
+const pad=n=>String(n).padStart(2,"0");
+const iso=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const parse=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d);};
+const addDays=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return iso(d);};
+const today=()=>iso(new Date());
+const dayNum=s=>Math.round(parse(s).getTime()/864e5);
+const diffDays=(a,b)=>dayNum(b)-dayNum(a);
+const fmtLong=s=>parse(s).toLocaleDateString("de-CH",{weekday:"long",day:"numeric",month:"long"});
+const fmtShort=s=>parse(s).toLocaleDateString("de-CH",{day:"numeric",month:"short"});
+const fmtDate=s=>parse(s).toLocaleDateString("de-CH",{day:"2-digit",month:"2-digit",year:"numeric"});
+const nowTime=()=>{const d=new Date();return pad(d.getHours())+":"+pad(d.getMinutes());};
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const r1=n=>Math.round(n*10)/10;
+const fmt1=n=>r1(n).toLocaleString("de-CH");
+
+/* ---------- state ---------- */
+let S = {settings:clone(DEF_SETTINGS), days:{}, mrs:[]};
+let REAL = null;          // saved real state while demo is shown
+let demo = false;
+let view = "heute";
+let cur = today();        // date being edited
+let calMonth = today().slice(0,7);
+let range = 90;
+let mrsDraft = null;
+let reportRange = "all";
+
+function clone(o){return JSON.parse(JSON.stringify(o));}
+/* Frühere Versionen hatten einen fest hinterlegten Vornamen als Standard. Er wird nur als Prüfsumme
+   verglichen (damit kein Name im Code steht) und entfernt; alle übrigen Daten bleiben unverändert. */
+const OLD_DEFAULT_NAME_HASH="8b883ed4";
+function nameHash(s){let x=0x811c9dc5;for(const c of String(s).trim().toLowerCase()){x^=c.codePointAt(0);x=Math.imul(x,0x01000193)>>>0;}return x.toString(16);}
+function migrate(st){if(!st.ver||st.ver<2){st.utroMode="none";st.ver=2;} if(st.ver<3){st.ver=3;}
+  if(st.ver<4){if(st.name&&nameHash(st.name)===OLD_DEFAULT_NAME_HASH)st.name="";st.ver=4;}
+  st.name=typeof st.name==="string"?st.name.trim():""; return st;}
+function mergeSettings(src){const st=Object.assign(clone(DEF_SETTINGS),src||{}); if(!src||src.ver==null) st.ver=3; return migrate(st);}
+
+/* ---------- local storage ---------- */
+function lsLoad(){
+  try{const raw=localStorage.getItem(LS_KEY); if(raw){const o=JSON.parse(raw); return o;}}catch(e){}
+  return null;
+}
+/* Alle Daten (Tage, Notizen, Fragebögen, Einstellungen, Name) werden ausschliesslich hier lokal gespeichert. */
+let lsWarned=false;
+function lsSave(){
+  if(demo) return true;
+  try{localStorage.setItem(LS_KEY,JSON.stringify(S)); lsWarned=false; return true;}
+  catch(e){ if(!lsWarned){lsWarned=true; try{toast("Speichern auf diesem Gerät ist gerade nicht möglich (Browser-Speicher voll oder gesperrt). Bitte eine Sicherung herunterladen.");}catch(_){}} return false; }
+}
+const loaded=lsLoad();
+if(loaded){S.settings=mergeSettings(loaded.settings);S.days=loaded.days||{};S.mrs=loaded.mrs||[];lsSave();}
+
+/* ---------- persistence API ---------- */
+function saveDay(date){ lsSave(); flashSaved(); }
+function saveMrs(m){ lsSave(); }
+function deleteMrs(id){ S.mrs=S.mrs.filter(m=>m.id!==id); lsSave(); }
+function saveSettings(){ lsSave(); }
+
+/* ---------- domain helpers ---------- */
+function getDay(date){
+  return S.days[date]||{date,e:{on:false,p:S.settings.estroPumps,t:"",s:""},u:{on:false,mg:S.settings.utroMg,t:""},hf:null,sl:null,mo:null,en:null,bl:"",fx:[],note:""};
+}
+function ensureDay(date){ if(!S.days[date]) S.days[date]=getDay(date); return S.days[date]; }
+function utroDue(date){
+  const s=S.settings;
+  if(s.utroMode==="none") return false;
+  if(s.utroMode==="daily") return true;
+  const d=parse(date).getDate();
+  return d>=Number(s.utroFrom)&&d<=Number(s.utroTo);
+}
+function sev(v,cut){ if(v<=cut[0])return 0; if(v<=cut[1])return 1; if(v<=cut[2])return 2; return 3; }
+function mrsTotal(m){return m.s.reduce((a,b)=>a+(b||0),0);}
+function mrsSub(m,k){return SUB[k].idx.reduce((a,i)=>a+(m.s[i]||0),0);}
+function sevPill(level,text){const cls=["sev0","sev1","sev2","sev3"][level];return `<span class="pill ${cls}">${esc(text||SEV_LABEL[level])}</span>`;}
+function sortedMrs(){return S.mrs.slice().sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:(a.ts||0)-(b.ts||0));}
+function therapyStart(){
+  if(S.settings.start) return S.settings.start;
+  const ks=Object.keys(S.days).filter(k=>S.days[k].e&&S.days[k].e.on).sort();
+  return ks[0]||"";
+}
+function streak(){
+  let n=0,d=today();
+  if(!(S.days[d]&&S.days[d].e.on)) d=addDays(d,-1);
+  while(S.days[d]&&S.days[d].e&&S.days[d].e.on){n++;d=addDays(d,-1);}
+  return n;
+}
+function daysInRange(from,to){const out=[];let d=from;while(d<=to){out.push(d);d=addDays(d,1);}return out;}
+function rangeFrom(nDays){
+  const st=therapyStart()||Object.keys(S.days).sort()[0]||today();
+  if(nDays==="all") return st;
+  const f=addDays(today(),-(nDays-1));
+  return f<st?st:f;
+}
+function adherence(from,to){
+  const ds=daysInRange(from,to);
+  let eDue=0,eOn=0,uDue=0,uOn=0;
+  ds.forEach(d=>{
+    const day=S.days[d];
+    // today counts only if already logged
+    if(d===today()&&!(day&&day.e.on)){} else {eDue++; if(day&&day.e.on)eOn++;}
+    if(utroDue(d)){ if(d===today()&&!(day&&day.u.on)){} else {uDue++; if(day&&day.u.on)uOn++;} }
+  });
+  return {eDue,eOn,uDue,uOn};
+}
+function gelSupply(){
+  const s=S.settings; if(!s.bottleDate) return null;
+  const total=Math.floor(s.bottleSize/PUMP_G);
+  let used=0;
+  Object.values(S.days).forEach(d=>{if(d.date>=s.bottleDate&&d.e&&d.e.on) used+=Number(d.e.p)||0;});
+  const left=Math.max(0,total-used);
+  const per=Number(s.estroPumps)||1;
+  const daysLeft=Math.floor(left/per);
+  return {total,used,left,daysLeft,empty:addDays(today(),daysLeft)};
+}
+function capSupply(){
+  const s=S.settings; if(!s.packDate||s.utroMode==="none") return null;
+  let used=0;
+  Object.values(S.days).forEach(d=>{if(d.date>=s.packDate&&d.u&&d.u.on) used++;});
+  const left=Math.max(0,Number(s.packSize)-used);
+  // estimate days to empty, counting only due days
+  let n=0,d=addDays(today(),1),rem=left;
+  if(!(S.days[today()]&&S.days[today()].u.on)&&utroDue(today())){ if(rem>0){rem--;} }
+  while(rem>0&&n<400){ if(utroDue(d)) rem--; if(rem>0) d=addDays(d,1); n++; }
+  return {total:Number(s.packSize),used,left,empty:left===0?today():d};
+}
+
+/* ---------- small UI helpers ---------- */
+let savedTimer=null;
+function flashSaved(){
+  const el=document.getElementById("saved"); if(!el) return;
+  el.textContent=demo?"Beispiel – wird nicht gespeichert":"Auf diesem Gerät gespeichert";
+  clearTimeout(savedTimer); savedTimer=setTimeout(()=>{if(el)el.textContent="";},1800);
+}
+function toast(msg){
+  const m=document.getElementById("modal");
+  m.innerHTML=`<div class="modal" data-action="closeModal"><div class="card stack"><div>${esc(msg)}</div><div class="row" style="justify-content:flex-end"><button class="btn" data-action="closeModal">OK</button></div></div></div>`;
+}
+function confirmBox(msg,yesLabel,onYes){
+  const m=document.getElementById("modal");
+  m.innerHTML=`<div class="modal"><div class="card stack"><div>${esc(msg)}</div><div class="row" style="justify-content:flex-end"><button class="btn ghost" data-action="closeModal">Abbrechen</button><button class="btn danger" id="yesBtn">${esc(yesLabel)}</button></div></div></div>`;
+  document.getElementById("yesBtn").onclick=()=>{m.innerHTML="";onYes();};
+}
+function statusBadge(){
+  if(demo) return `<span class="status"><i></i>Beispieldaten</span>`;
+  return `<span class="status"><i></i>Nur auf diesem Gerät gespeichert</span>`;
+}
+function demoBanner(){
+  return demo?`<div class="banner"><span>Du siehst Beispieldaten. Nichts davon wird gespeichert.</span><button class="btn" data-action="demoOff">Beenden</button></div>`:"";
+}
+
+/* ---------- icons ---------- */
+const IC={
+  heute:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 12.3l2.4 2.4 4.6-5"/></svg>',
+  kalender:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
+  fragebogen:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M8.5 9h7M8.5 13h7M8.5 17h4"/></svg>',
+  analyse:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"/><path d="M5 15l4.5-4.5 3.5 3L19 7"/></svg>',
+  mehr:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18" cy="12" r="1.8"/></svg>'
+};
+const TABS=[["heute","Heute"],["kalender","Kalender"],["fragebogen","Fragebogen"],["analyse","Analyse"],["mehr","Mehr"]];
+
+/* ---------- VIEW: Heute ---------- */
+function vHeute(){
+  const d=getDay(cur); const isToday=cur===today(); const s=S.settings;
+  const due=utroDue(cur);
+  const st=streak();
+  const e=d.e,u=d.u;
+  const scale=(key,label)=>`<div class="stack" style="gap:6px"><div class="row between"><h3>${label}</h3><span class="small muted">${d[key]?SCALE5[key][d[key]-1]:"–"}</span></div>
+    <div class="seg">${[1,2,3,4,5].map(v=>`<button aria-pressed="${d[key]===v}" data-action="scale" data-k="${key}" data-v="${v}" aria-label="${label} ${v} von 5">${v}</button>`).join("")}</div></div>`;
+  return `${demoBanner()}
+  <div class="top"><div><div class="eyebrow">${isToday?esc(fmtLong(cur)):"Eintrag für"}</div><h1>${isToday?esc(greeting()):esc(fmtLong(cur))}</h1>${isToday?`<div class="small muted" style="margin-top:4px">${esc(subGreeting(d))}</div>`:""}</div>
+    <div class="row" style="gap:6px;flex-wrap:nowrap"><button class="iconbtn" data-action="dayPrev" aria-label="Vorheriger Tag">‹</button><button class="iconbtn" data-action="dayNext" aria-label="Nächster Tag" ${isToday?"disabled":""}>›</button></div></div>
+  <div class="stack">
+    ${welcomeCard()}
+    ${!isToday?`<button class="btn ghost" data-action="goToday" style="align-self:flex-start">Zurück zu heute</button>`:""}
+    ${st>1&&isToday?`<div class="note">Oestrogel seit <b class="num">${st}</b> Tagen in Folge eingetragen.</div>`:""}
+    <section class="card estro stack" aria-label="Oestrogel">
+      <button class="take ${e.on?"on":""}" data-action="toggleE" aria-pressed="${e.on}">
+        <span class="ring">${e.on?"✓":""}</span>
+        <span><span class="t1">Oestrogel</span><br><span class="small muted">${e.on?`${e.p} ${e.p==1?"Hub":"Hübe"} · ${fmt1(e.p*PUMP_MG)} mg Estradiol${e.t?" · "+esc(e.t)+" Uhr":""}`:`${s.estroPumps} ${s.estroPumps==1?"Hub":"Hübe"} verordnet · antippen zum Abhaken`}</span></span>
+      </button>
+      ${e.on?`<div class="row between"><span class="small muted">Hübe</span><span class="stepper"><button data-action="pumps" data-v="-1" aria-label="Weniger">−</button><span class="num">${e.p}</span><button data-action="pumps" data-v="1" aria-label="Mehr">+</button></span></div>
+      <div class="grid2"><label class="f" for="eTime">Uhrzeit<input type="time" id="eTime" data-field="e.t" value="${esc(e.t)}"></label>
+      <div class="f"><span>Stelle</span><div class="chips">${SITES.map(x=>`<button class="chip" aria-pressed="${e.s===x}" data-action="site" data-v="${x}">${x}</button>`).join("")}</div></div></div>`:""}
+    </section>
+    ${s.utroMode!=="none"?`<section class="card utro stack" aria-label="Utrogestan">
+      <button class="take ${u.on?"on":""}" data-action="toggleU" aria-pressed="${u.on}">
+        <span class="ring">${u.on?"✓":""}</span>
+        <span><span class="t1">Utrogestan</span><br><span class="small muted">${u.on?`${u.mg} mg Kapsel${u.t?" · "+esc(u.t)+" Uhr":""}`:(due?`${s.utroMg} mg vor dem Schlafen`:"Heute nicht vorgesehen")}</span></span>
+      </button>
+      ${u.on?`<div class="grid2"><div class="f"><span>Dosis</span><div class="chips">${[100,200].map(x=>`<button class="chip" aria-pressed="${u.mg==x}" data-action="umg" data-v="${x}">${x} mg</button>`).join("")}</div></div>
+      <label class="f" for="uTime">Uhrzeit<input type="time" id="uTime" data-field="u.t" value="${esc(u.t)}"></label></div>`:""}
+    </section>`:""}
+    <section class="card stack" aria-label="Befinden">
+      <h2>Befinden</h2>
+      <div class="row between"><div><h3>Hitzewallungen</h3><div class="small muted">Anzahl heute</div></div>
+        <span class="stepper"><button data-action="hf" data-v="-1" aria-label="Weniger">−</button><span class="num">${d.hf==null?"–":d.hf}</span><button data-action="hf" data-v="1" aria-label="Mehr">+</button></span></div>
+      ${scale("sl","Schlaf letzte Nacht")}
+      ${scale("mo","Stimmung")}
+      ${scale("en","Energie")}
+      <div class="stack" style="gap:6px"><h3>Blutung</h3><div class="chips">${BLEED.map(([k,l])=>`<button class="chip" aria-pressed="${d.bl===k}" data-action="bleed" data-v="${k}">${l}</button>`).join("")}</div></div>
+      <div class="stack" style="gap:6px"><h3>Begleiterscheinungen</h3><div class="chips">${FX.map(x=>`<button class="chip" aria-pressed="${(d.fx||[]).includes(x)}" data-action="fx" data-v="${esc(x)}">${x}</button>`).join("")}</div></div>
+      <label class="f" for="note">Notiz<textarea id="note" data-field="note" placeholder="Was war heute anders? Z. B. Stress, Sport, Alkohol, Arzttermin …">${esc(d.note)}</textarea></label>
+      <div class="row between"><span id="saved" class="saved" aria-live="polite"></span>${statusBadge()}</div>
+    </section>
+    ${supplyHint()}
+  </div>`;
+}
+function greeting(){
+  const n=(S.settings.name||"").trim(); const h=new Date().getHours();
+  if(h<5||h>=22) return n?`Gute Nacht, ${n}`:"Gute Nacht";
+  if(h<11) return n?`Guten Morgen, ${n}`:"Guten Morgen";
+  if(h<17) return n?`Hallo ${n}`:"Hallo";
+  return n?`Guten Abend, ${n}`:"Guten Abend";
+}
+function subGreeting(d){
+  if(d.e.on){const st=streak(); return st>2?`Oestrogel ist erledigt, ${st} Tage in Folge. Schön!`:"Oestrogel ist für heute erledigt. Schön!";}
+  return new Date().getHours()<12?"Oestrogel steht heute noch aus.":"Oestrogel ist heute noch nicht abgehakt.";
+}
+function welcomeCard(){
+  if(S.settings.welcomed||demo) return "";
+  const n=(S.settings.name||"").trim();
+  return `<section class="card stack welcome" aria-label="Willkommen">
+    <h2>Schön, dass du da bist${n?", "+esc(n):""}</h2>
+    <div class="small">Hier hältst du fest, wann du Oestrogel aufträgst und wie es dir geht. Aus deinen Einträgen entstehen Verläufe und ein Bericht für den nächsten Arzttermin.</div>
+    <ul class="tips small"><li>Jeden Tag: Oestrogel abhaken, Befinden kurz eintragen.</li><li>Alle 2–4 Wochen: den Fragebogen ausfüllen, falls vorhanden zuerst einen bereits ausgefüllten Bogen als Ausgangswert.</li><li>Unter «Analyse» siehst du, was sich verändert.</li></ul>
+    <button class="btn primary" data-action="welcomeOk" style="align-self:flex-start">Los geht's</button></section>`;
+}
+function supplyHint(){
+  const g=gelSupply(),c=capSupply(); const out=[];
+  if(g&&g.daysLeft<=10) out.push(`Oestrogel reicht noch etwa <b>${g.daysLeft} Tage</b> (${g.left} Hübe).`);
+  if(c&&c.left<=5) out.push(`Noch <b>${c.left} Utrogestan-Kapseln</b> in der Packung.`);
+  return out.length?`<div class="note warn">${out.join("<br>")} Rezept oder Nachschub einplanen.</div>`:"";
+}
+
+/* ---------- VIEW: Kalender ---------- */
+function vKalender(){
+  const [y,m]=calMonth.split("-").map(Number);
+  const first=new Date(y,m-1,1); const nDays=new Date(y,m,0).getDate();
+  const lead=(first.getDay()+6)%7;
+  const t=today();
+  let cells="";
+  for(let i=0;i<lead;i++) cells+=`<button class="out" tabindex="-1" aria-hidden="true"></button>`;
+  let eOn=0,uOn=0,uDue=0,bl=0,hfs=[],past=0;
+  for(let d=1;d<=nDays;d++){
+    const ds=`${y}-${pad(m)}-${pad(d)}`; const day=S.days[ds]; const fut=ds>t;
+    const due=utroDue(ds);
+    const e=day&&day.e.on, u=day&&day.u.on;
+    if(!fut){past++; if(e)eOn++; if(due){uDue++;} if(u)uOn++; if(day&&day.bl&&day.bl!=="none")bl++; if(day&&day.hf!=null)hfs.push(day.hf);}
+    const blc=day&&day.bl&&day.bl!=="none"?`<span class="bleed ${day.bl==="spot"?"spot":""}"></span>`:"";
+    cells+=`<button class="${ds===t?"today":""} ${fut?"future":""}" data-action="openDay" data-v="${ds}" ${fut?"disabled":""} aria-label="${fmtLong(ds)}${e?", Oestrogel":""}${u?", Utrogestan":""}">
+      <span class="d num">${d}</span><span class="dots"><span class="dot e ${e?"on":""}"></span>${S.settings.utroMode!=="none"?`<span class="dot u ${u?"on":""} ${!due&&!u?"na":""}"></span>`:""}</span>${blc}</button>`;
+  }
+  const mname=first.toLocaleDateString("de-CH",{month:"long",year:"numeric"});
+  const isCur=calMonth===t.slice(0,7);
+  const avgHf=hfs.length?fmt1(hfs.reduce((a,b)=>a+b,0)/hfs.length):"–";
+  return `${demoBanner()}
+  <div class="top"><div><div class="eyebrow">Kalender</div><h1>${esc(mname)}</h1></div>
+   <div class="row" style="gap:6px;flex-wrap:nowrap"><button class="iconbtn" data-action="monPrev" aria-label="Vorheriger Monat">‹</button><button class="iconbtn" data-action="monNext" aria-label="Nächster Monat" ${isCur?"disabled":""}>›</button></div></div>
+  <div class="stack">
+   <div class="card stack">
+    <div class="cal">${["Mo","Di","Mi","Do","Fr","Sa","So"].map(w=>`<div class="wd">${w}</div>`).join("")}${cells}</div>
+    <div class="legend"><span><i style="background:var(--estro)"></i>Oestrogel</span>${S.settings.utroMode!=="none"?`<span><i style="background:var(--utro)"></i>Utrogestan</span>`:""}<span><i style="background:var(--bad);height:3px;vertical-align:2px"></i>Blutung</span></div>
+    <div class="small muted">Tag antippen, um den Eintrag zu ergänzen.</div>
+   </div>
+   <div class="tiles">
+    <div class="tile"><div class="l">Oestrogel</div><div class="v num">${eOn}/${past}</div><div class="small muted">Tage</div></div>
+    ${S.settings.utroMode!=="none"?`<div class="tile"><div class="l">Utrogestan</div><div class="v num">${uOn}/${uDue}</div><div class="small muted">vorgesehene Tage</div></div>`:""}
+    <div class="tile"><div class="l">Ø Hitzewallungen</div><div class="v num">${avgHf}</div><div class="small muted">pro erfasstem Tag</div></div>
+    <div class="tile"><div class="l">Blutungstage</div><div class="v num">${bl}</div><div class="small muted">inkl. Schmierblutung</div></div>
+   </div>
+  </div>`;
+}
+
+/* ---------- VIEW: Fragebogen (MRS) ---------- */
+function vFragebogen(){
+  if(mrsDraft) return vMrsForm();
+  const list=sortedMrs().reverse();
+  const base=sortedMrs()[0];
+  return `${demoBanner()}
+  <div class="top"><div><div class="eyebrow">Menopause Rating Scale</div><h1>Fragebogen</h1></div></div>
+  <div class="stack">
+   <div class="card stack">
+    <div>Elf Beschwerden, je von «keine» bis «sehr stark». Etwa alle zwei bis vier Wochen ausgefüllt, zeigt die Summe, wie die Therapie wirkt.</div>
+    ${!S.mrs.length?`<div class="note">Tipp: Falls du schon einmal einen solchen Fragebogen ausgefüllt hast (z. B. in der Praxis), kannst du ihn hier als Ausgangswert eintragen. Das Datum lässt sich im Formular ändern.</div>`:""}
+    <button class="btn primary" data-action="mrsNew" style="align-self:flex-start">Neuen Fragebogen ausfüllen</button>
+   </div>
+   ${list.length?`<div class="card"><h2 style="margin-bottom:6px">Bisherige Bögen</h2><div class="list">${list.map(m=>{
+      const t=mrsTotal(m); const lv=sev(t,TOTAL_CUT);
+      const delta=base&&base.id!==m.id?t-mrsTotal(base):null;
+      return `<div class="li"><div><div style="font-weight:600">${fmtDate(m.date)}${base&&base.id===m.id?' <span class="small muted">· Ausgangswert</span>':""}</div>
+        <div class="small muted">Körperlich ${mrsSub(m,"soma")} · Psychisch ${mrsSub(m,"psych")} · Urogenital ${mrsSub(m,"uro")}${delta!=null?` · ${delta<=0?"":"+"}${delta} seit Start`:""}</div></div>
+        <div class="row" style="flex-wrap:nowrap;gap:8px"><span class="num" style="font-family:var(--display);font-size:1.4rem;font-weight:600">${t}</span>${sevPill(lv)}
+        <button class="iconbtn" data-action="mrsEdit" data-v="${m.id}" aria-label="Bearbeiten">✎</button></div></div>`;}).join("")}</div></div>`:""}
+   <div class="card small muted">Auswertung nach den üblichen MRS-Grenzwerten (Summe 0–44): bis 4 keine/kaum, 5–8 leicht, 9–15 mittel, ab 16 stark. MRS™ ZEG Berlin GmbH.</div>
+  </div>`;
+}
+function vMrsForm(){
+  const m=mrsDraft; const t=mrsTotal({s:m.s.map(x=>x||0)}); const filled=m.s.filter(x=>x!=null).length;
+  return `${demoBanner()}
+  <div class="top"><div><div class="eyebrow">${m.existing?"Bogen bearbeiten":"Neuer Bogen"}</div><h1>Welche Beschwerden hast du zurzeit?</h1></div></div>
+  <div class="stack">
+   <div class="card"><label class="f" for="mrsDate">Datum<input type="date" id="mrsDate" data-mrs="date" value="${esc(m.date)}" max="${today()}"></label></div>
+   <div class="card">${MRS.map((q,i)=>`<div class="mrsq stack" style="gap:8px"><div><div style="font-weight:600"><span class="muted num">${i+1}.</span> ${q[0]}</div><div class="small muted">${q[1]}</div></div>
+     <div class="seg">${LEVELS.map((l,v)=>`<button data-action="mrsSet" data-i="${i}" data-v="${v}" aria-pressed="${m.s[i]===v}">${l}</button>`).join("")}</div></div>`).join("")}</div>
+   <div class="card"><label class="f" for="mrsNote">Notiz<textarea id="mrsNote" data-mrs="note" placeholder="Z. B. Arzttermin, Dosisänderung …">${esc(m.note||"")}</textarea></label></div>
+   <div class="card row between" style="position:sticky;bottom:calc(76px + env(safe-area-inset-bottom));z-index:3">
+     <div><div class="small muted">${filled}/11 beantwortet</div><div><span class="num" style="font-family:var(--display);font-size:1.5rem;font-weight:600">${t}</span> <span class="muted">/ 44</span> ${sevPill(sev(t,TOTAL_CUT))}</div></div>
+     <div class="row" style="flex-wrap:nowrap">${m.existing?`<button class="btn danger" data-action="mrsDelete">Löschen</button>`:""}<button class="btn ghost" data-action="mrsCancel">Abbrechen</button><button class="btn primary" data-action="mrsSave" ${filled<11?"disabled":""}>Speichern</button></div>
+   </div>
+  </div>`;
+}
+
+/* ---------- charts ---------- */
+function lineChart(o){
+  const w=340,h=o.h||160,pl=26,pr=10,pt=8,pb=20;
+  const X=v=>pl+(v-o.x0)/((o.x1-o.x0)||1)*(w-pl-pr);
+  const Y=v=>h-pb-(v-o.y0)/((o.y1-o.y0)||1)*(h-pt-pb);
+  let s=`<svg viewBox="0 0 ${w} ${h}" class="chart" role="img" aria-label="${esc(o.label||"Diagramm")}">`;
+  (o.bands||[]).forEach(b=>{s+=`<rect x="${pl}" y="${Y(b.to)}" width="${w-pl-pr}" height="${Y(b.from)-Y(b.to)}" fill="${b.c}" opacity="${b.o||.5}"/>`;});
+  (o.yTicks||[]).forEach(t=>{s+=`<line x1="${pl}" x2="${w-pr}" y1="${Y(t)}" y2="${Y(t)}" stroke="var(--line)" stroke-width="1"/><text x="${pl-5}" y="${Y(t)+3}" text-anchor="end">${t}</text>`;});
+  (o.xTicks||[]).forEach(t=>{s+=`<text x="${X(t.v)}" y="${h-5}" text-anchor="middle">${esc(t.l)}</text>`;});
+  o.series.forEach(se=>{
+    const pts=se.pts.filter(p=>p[1]!=null); if(!pts.length) return;
+    const dpath=pts.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+" "+Y(p[1]).toFixed(1)).join(" ");
+    if(se.area&&pts.length>1) s+=`<path d="${dpath} L${X(pts[pts.length-1][0]).toFixed(1)} ${Y(o.y0)} L${X(pts[0][0]).toFixed(1)} ${Y(o.y0)} Z" fill="${se.c}" opacity=".12"/>`;
+    s+=`<path d="${dpath}" fill="none" stroke="${se.c}" stroke-width="${se.wd||2}" stroke-linejoin="round" stroke-linecap="round" ${se.dash?'stroke-dasharray="4 3"':""}/>`;
+    if(se.dots) pts.forEach(p=>{s+=`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="3" fill="var(--surface)" stroke="${se.c}" stroke-width="2"/>`;});
+    const L=pts[pts.length-1];
+    s+=`<circle cx="${X(L[0])}" cy="${Y(L[1])}" r="4" fill="${se.c}"/>`;
+    if(se.endLabel) s+=`<text x="${Math.min(X(L[0])+0,w-pr)}" y="${Y(L[1])-8}" text-anchor="end" style="fill:${se.c};font-weight:700;font-size:11px">${esc(se.endLabel)}</text>`;
+  });
+  return s+"</svg>";
+}
+function rolling(dates,key,win){
+  return dates.map((d,i)=>{
+    const vals=[];for(let j=Math.max(0,i-win+1);j<=i;j++){const day=S.days[dates[j]];if(day&&day[key]!=null)vals.push(day[key]);}
+    return [dayNum(d),vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null];
+  });
+}
+function xTicksFor(from,to){
+  const n=diffDays(from,to); const step=n<=14?3:n<=45?7:n<=120?21:60; const out=[];
+  for(let i=0;i<=n;i+=step) out.push({v:dayNum(addDays(from,i)),l:fmtShort(addDays(from,i))});
+  return out;
+}
+
+/* ---------- VIEW: Analyse ---------- */
+function vAnalyse(){
+  const hasData=Object.keys(S.days).length||S.mrs.length;
+  if(!hasData) return `${demoBanner()}<div class="top"><div><div class="eyebrow">Analyse</div><h1>Auswertungen</h1></div></div>
+   <div class="card stack"><div>Sobald einige Tage und ein Fragebogen erfasst sind, erscheinen hier Verläufe, Therapietreue, Vorrat und Erkenntnisse.</div>
+   <button class="btn" data-action="demoOn" style="align-self:flex-start">Mit Beispieldaten ansehen</button></div>`;
+  const to=today(); const from=rangeFrom(range);
+  const dates=daysInRange(from,to);
+  const ad=adherence(from,to);
+  const start=therapyStart();
+  const pct=(a,b)=>b?Math.round(a/b*100):null;
+  const ep=pct(ad.eOn,ad.eDue), up=pct(ad.uOn,ad.uDue);
+  const ms=sortedMrs(); const last=ms[ms.length-1]; const first=ms[0];
+  const tile=(l,v,sub,col)=>`<div class="tile"><div class="l">${l}</div><div class="v num"${col?` style="color:${col}"`:""}>${v}</div><div class="small muted">${sub}</div></div>`;
+  const pctBar=(p,c)=>`<div class="bar" style="margin-top:6px"><i style="width:${p||0}%;background:${c}"></i></div>`;
+  return `${demoBanner()}
+  <div class="top"><div><div class="eyebrow">Analyse</div><h1>Wie läuft die Therapie?</h1></div></div>
+  <div class="stack">
+   <div class="chips" role="group" aria-label="Zeitraum">${[[30,"30 Tage"],[90,"90 Tage"],["all","Seit Beginn"]].map(([k,l])=>`<button class="chip" aria-pressed="${range===k}" data-action="range" data-v="${k}">${l}</button>`).join("")}</div>
+   <div class="tiles">
+    ${tile("Therapietag",start?diffDays(start,to)+1:"–",start?"seit "+fmtDate(start):"Beginn in Einstellungen setzen")}
+    ${tile("MRS aktuell",last?mrsTotal(last):"–",last?(first&&first.id!==last.id?`Start ${mrsTotal(first)} · ${sevLabelTotal(mrsTotal(last))}`:sevLabelTotal(mrsTotal(last))):"noch kein Bogen")}
+    <div class="tile"><div class="l">Oestrogel-Treue</div><div class="v num" style="color:var(--estro)">${ep==null?"–":ep+" %"}</div><div class="small muted">${ad.eOn} von ${ad.eDue} Tagen</div>${pctBar(ep,"var(--estro)")}</div>
+    ${S.settings.utroMode!=="none"?`<div class="tile"><div class="l">Utrogestan-Treue</div><div class="v num" style="color:var(--utro)">${up==null?"–":up+" %"}</div><div class="small muted">${ad.uOn} von ${ad.uDue} Tagen</div>${pctBar(up,"var(--utro)")}</div>`:""}
+   </div>
+   ${insightsCard(from,to)}
+   ${mrsCard(ms)}
+   ${dailyCard(dates,from,to)}
+   ${supplyCard()}
+   ${bleedCard(from,to)}
+  </div>`;
+}
+function sevLabelTotal(t){return ["keine/kaum","leichte","mittlere","starke"][sev(t,TOTAL_CUT)]+" Beschwerden";}
+function mrsCard(ms){
+  if(!ms.length) return `<div class="card stack"><h2>Menopause Rating Scale</h2><div class="muted">Noch kein Fragebogen erfasst.</div><button class="btn" data-action="goMrs" style="align-self:flex-start">Fragebogen ausfüllen</button></div>`;
+  const first=ms[0],last=ms[ms.length-1];
+  const x0=dayNum(first.date),x1=Math.max(dayNum(last.date),x0+14);
+  const xt=xTicksFor(first.date,addDays(first.date,x1-x0));
+  const chart=lineChart({label:"MRS-Summe im Verlauf",x0,x1,y0:0,y1:Math.max(24,...ms.map(mrsTotal))+2,
+    bands:[{from:0,to:4.5,c:"var(--good-soft)",o:.9},{from:4.5,to:8.5,c:"var(--soft)",o:.9},{from:8.5,to:15.5,c:"var(--warn-soft)",o:.9},{from:15.5,to:60,c:"var(--bad-soft)",o:.9}],
+    yTicks:[0,4,8,15,20], xTicks:xt,
+    series:[{pts:ms.map(m=>[dayNum(m.date),mrsTotal(m)]),c:"var(--ink)",dots:true,area:false,endLabel:String(mrsTotal(last))}]});
+  const subs=Object.keys(SUB).map(k=>{
+    const a=mrsSub(first,k),b=mrsSub(last,k),max=SUB[k].idx.length*4;
+    return `<div class="stack" style="gap:4px"><div class="row between"><span style="font-weight:600">${SUB[k].name}</span><span class="small">${ms.length>1?`<span class="muted num">${a} →</span> `:""}<b class="num">${b}</b><span class="muted">/${max}</span> ${sevPill(sev(b,SUB[k].cut))}</span></div>
+      <div class="bar" style="position:relative">${ms.length>1?`<i style="position:absolute;width:${a/max*100}%;background:var(--line)"></i>`:""}<i style="position:relative;width:${b/max*100}%;background:var(--ink)"></i></div></div>`;
+  }).join("");
+  let items="";
+  if(ms.length>1){
+    items=`<div class="divider"></div><h3 style="margin-bottom:4px">Einzelne Beschwerden: Start → zuletzt</h3><div class="items">${MRS.map((q,i)=>{
+      const a=first.s[i]||0,b=last.s[i]||0; const d=b-a;
+      const col=d<0?"var(--good)":d>0?"var(--bad)":"var(--muted)";
+      return `<div class="it"><span class="small">${q[0]}</span><span class="small num" style="text-align:right"><span class="muted">${LEVELS[a]}</span> → <b style="color:${col}">${LEVELS[b]}</b></span></div>`;}).join("")}</div>`;
+  }
+  return `<div class="card stack"><div class="row between"><h2>Menopause Rating Scale</h2><span class="small muted">${ms.length} ${ms.length===1?"Bogen":"Bögen"}</span></div>
+   ${chart}
+   <div class="legend"><span><i style="background:var(--good-soft);border:1px solid var(--good)"></i>kaum</span><span><i style="background:var(--soft);border:1px solid var(--muted)"></i>leicht</span><span><i style="background:var(--warn-soft);border:1px solid var(--warn)"></i>mittel</span><span><i style="background:var(--bad-soft);border:1px solid var(--bad)"></i>stark</span></div>
+   <div class="stack" style="gap:10px">${subs}</div>${items}</div>`;
+}
+function dailyCard(dates,from,to){
+  const any=dates.some(d=>{const x=S.days[d];return x&&(x.hf!=null||x.sl||x.mo||x.en);});
+  if(!any) return `<div class="card stack"><h2>Tagesbefinden</h2><div class="muted">Unter «Heute» Hitzewallungen, Schlaf, Stimmung und Energie erfassen, dann erscheinen hier die Verläufe.</div></div>`;
+  const x0=dayNum(from),x1=Math.max(dayNum(to),x0+7); const xt=xTicksFor(from,to);
+  const hf=rolling(dates,"hf",7); const hfMax=Math.max(4,...hf.map(p=>p[1]||0));
+  const c1=lineChart({label:"Hitzewallungen pro Tag, 7-Tage-Schnitt",x0,x1,y0:0,y1:Math.ceil(hfMax+1),yTicks:niceTicks(Math.ceil(hfMax+1)),xTicks:xt,h:140,
+    series:[{pts:hf,c:"var(--utro)",area:true,endLabel:lastVal(hf)}]});
+  const c2=lineChart({label:"Schlaf, Stimmung, Energie, 7-Tage-Schnitt",x0,x1,y0:1,y1:5,yTicks:[1,2,3,4,5],xTicks:xt,h:150,
+    series:[{pts:rolling(dates,"sl",7),c:"var(--estro)"},{pts:rolling(dates,"mo",7),c:"var(--warn)"},{pts:rolling(dates,"en",7),c:"var(--ink)",dash:true}]});
+  return `<div class="card stack"><h2>Tagesbefinden</h2>
+   <div><h3>Hitzewallungen pro Tag</h3><div class="small muted">gleitender 7-Tage-Schnitt</div>${c1}</div>
+   <div><h3>Schlaf, Stimmung, Energie</h3><div class="small muted">1 = sehr schlecht, 5 = sehr gut · 7-Tage-Schnitt</div>${c2}
+   <div class="legend"><span><i style="background:var(--estro)"></i>Schlaf</span><span><i style="background:var(--warn)"></i>Stimmung</span><span><i style="background:var(--ink)"></i>Energie</span></div></div></div>`;
+}
+function niceTicks(max){const step=max<=6?1:max<=12?2:5;const o=[];for(let i=0;i<=max;i+=step)o.push(i);return o;}
+function lastVal(arr){for(let i=arr.length-1;i>=0;i--){if(arr[i][1]!=null)return fmt1(arr[i][1]);}return "";}
+function avg(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:null;}
+function insightsCard(from,to){
+  const out=[];
+  const vals=(f,t,k)=>daysInRange(f,t).map(d=>S.days[d]&&S.days[d][k]).filter(v=>v!=null);
+  // flushes: last 14 vs previous 14
+  const a=vals(addDays(to,-13),to,"hf"), b=vals(addDays(to,-27),addDays(to,-14),"hf");
+  if(a.length>=5&&b.length>=5){const A=avg(a),B=avg(b);const ch=B?Math.round((A-B)/B*100):0;
+    out.push(`Hitzewallungen in den letzten 14 Tagen: Ø <b>${fmt1(A)}</b> pro Tag, davor ${fmt1(B)} (${ch<=0?"":"+"}${ch} %).`);}
+  // sleep after Utrogestan
+  if(S.settings.utroMode!=="none"){
+    const w=[],wo=[];
+    daysInRange(from,to).forEach(d=>{const day=S.days[d],prev=S.days[addDays(d,-1)]; if(day&&day.sl){ if(prev&&prev.u&&prev.u.on) w.push(day.sl); else wo.push(day.sl);} });
+    if(w.length>=5&&wo.length>=3) out.push(`Schlaf nach einem Utrogestan-Abend: Ø <b>${fmt1(avg(w))}</b> von 5, sonst ${fmt1(avg(wo))}.`);
+  }
+  // dose comparison
+  const byDose={};
+  daysInRange(from,to).forEach(d=>{const day=S.days[d]; if(day&&day.e.on&&day.hf!=null){(byDose[day.e.p]=byDose[day.e.p]||[]).push(day.hf);} });
+  const doses=Object.keys(byDose).filter(k=>byDose[k].length>=5);
+  if(doses.length>=2) out.push("Hitzewallungen je Oestrogel-Dosis: "+doses.map(k=>`${k} ${k==1?"Hub":"Hübe"} Ø <b>${fmt1(avg(byDose[k]))}</b>`).join(", ")+". Dosisänderungen nur mit der Ärztin.");
+  // MRS
+  const ms=sortedMrs();
+  if(ms.length>=2){const f=ms[0],l=ms[ms.length-1];const tf=mrsTotal(f),tl=mrsTotal(l);
+    out.push(`MRS-Summe von <b>${tf}</b> auf <b>${tl}</b>${tf?` (${tl<=tf?"−":"+"}${Math.abs(Math.round((tl-tf)/tf*100))} %)`:""} seit ${fmtDate(f.date)}.`);
+    let best=-1,bi=-1,worst=-1,wi=-1; MRS.forEach((q,i)=>{const d=(f.s[i]||0)-(l.s[i]||0); if(d>best){best=d;bi=i;} if((l.s[i]||0)>worst){worst=l.s[i]||0;wi=i;}});
+    if(best>0) out.push(`Grösste Besserung: <b>${MRS[bi][0]}</b> (${LEVELS[f.s[bi]]} → ${LEVELS[l.s[bi]]}).`);
+    if(worst>=2) out.push(`Am stärksten zuletzt: <b>${MRS[wi][0]}</b> (${LEVELS[worst]}). Ein Thema für den nächsten Termin.`);
+  }
+  // side effects
+  const fxc={}; daysInRange(from,to).forEach(d=>{const day=S.days[d]; (day&&day.fx||[]).forEach(x=>fxc[x]=(fxc[x]||0)+1);});
+  const topfx=Object.entries(fxc).sort((x,y)=>y[1]-x[1]).slice(0,3);
+  if(topfx.length) out.push("Häufigste Begleiterscheinungen: "+topfx.map(([k,v])=>`${k} (${v} Tage)`).join(", ")+".");
+  if(!out.length) return "";
+  return `<div class="card stack"><h2>Erkenntnisse</h2><ul class="tips">${out.map(x=>`<li>${x}</li>`).join("")}</ul></div>`;
+}
+function supplyCard(){
+  const g=gelSupply(),c=capSupply();
+  const parts=[];
+  if(g){const p=g.left/g.total*100;
+    parts.push(`<div class="stack" style="gap:4px"><div class="row between"><span style="font-weight:600">Oestrogel-Flasche</span><span class="small num">${g.left} von ${g.total} Hüben</span></div>
+     <div class="bar"><i style="width:${p}%;background:${g.daysLeft<=10?"var(--warn)":"var(--estro)"}"></i></div>
+     <div class="small muted">Reicht bei ${S.settings.estroPumps} ${S.settings.estroPumps==1?"Hub":"Hüben"}/Tag noch etwa ${g.daysLeft} Tage, bis ca. ${fmtDate(g.empty)}.</div></div>`);}
+  if(c){const p=c.left/c.total*100;
+    parts.push(`<div class="stack" style="gap:4px"><div class="row between"><span style="font-weight:600">Utrogestan-Packung</span><span class="small num">${c.left} von ${c.total} Kapseln</span></div>
+     <div class="bar"><i style="width:${p}%;background:${c.left<=5?"var(--warn)":"var(--utro)"}"></i></div>
+     <div class="small muted">Letzte Kapsel voraussichtlich am ${fmtDate(c.empty)}.</div></div>`);}
+  return `<div class="card stack"><div class="row between"><h2>Vorrat</h2><button class="btn" data-action="goSettings">Anpassen</button></div>
+   ${parts.length?parts.join(""):`<div class="muted small">Unter Mehr › Einstellungen das Datum der angebrochenen Flasche bzw. Packung eintragen. Dann rechnet die App aus, wann Nachschub nötig ist (80-g-Flasche = 64 Hübe).</div>`}
+   ${g?`<button class="btn ghost" data-action="newBottle" style="align-self:flex-start">Neue Flasche heute angebrochen</button>`:""}
+   ${c?`<button class="btn ghost" data-action="newPack" style="align-self:flex-start">Neue Packung heute angebrochen</button>`:""}</div>`;
+}
+function bleedCard(from,to){
+  const ds=daysInRange(from,to).filter(d=>S.days[d]&&S.days[d].bl&&S.days[d].bl!=="none");
+  if(!ds.length) return "";
+  const lbl=Object.fromEntries(BLEED);
+  return `<div class="card stack"><h2>Blutungen</h2><div class="small muted">Unter Hormontherapie wichtig für die Ärztin, besonders unerwartete Blutungen.</div>
+   <div class="list">${ds.slice().reverse().slice(0,12).map(d=>`<div class="li"><span>${fmtDate(d)}</span><span class="small">${lbl[S.days[d].bl]}</span></div>`).join("")}</div></div>`;
+}
+
+/* ---------- VIEW: Mehr ---------- */
+function vMehr(){
+  const s=S.settings;
+  return `${demoBanner()}
+  <div class="top"><div><div class="eyebrow">Mehr</div><h1>Bericht, Wissen &amp; Einstellungen</h1></div>${statusBadge()}</div>
+  <div class="stack">
+   <section class="card stack" id="bericht"><h2>Bericht für den Arzttermin</h2>
+    <div class="chips">${[["30","30 Tage"],["90","90 Tage"],["all","Seit Beginn"]].map(([k,l])=>`<button class="chip" aria-pressed="${reportRange===k}" data-action="repRange" data-v="${k}">${l}</button>`).join("")}</div>
+    <pre class="report" id="reportText">${esc(buildReport())}</pre>
+    <div class="row"><button class="btn primary" data-action="copyReport">Text kopieren</button><span class="small muted" id="copyMsg"></span></div>
+    <div class="small muted">In eine Mail oder Notiz einfügen, oder in der Praxis direkt vom Handy zeigen.</div>
+   </section>
+   <section class="card stack"><h2>Fragen an die Ärztin</h2>
+    <div class="list">${s.questions.map(q=>`<div class="li"><label class="row" style="flex-wrap:nowrap;gap:10px;flex:1"><input type="checkbox" data-action="qDone" data-v="${q.id}" ${q.done?"checked":""}><span style="${q.done?"text-decoration:line-through;color:var(--muted)":""}">${esc(q.text)}</span></label><button class="iconbtn" data-action="qDel" data-v="${q.id}" aria-label="Frage löschen">×</button></div>`).join("")||`<div class="muted small">Noch keine Fragen.</div>`}</div>
+    <form class="row" style="flex-wrap:nowrap" id="qForm"><input type="text" id="qText" placeholder="Neue Frage …" aria-label="Neue Frage"><button class="btn" type="submit">Hinzufügen</button></form>
+   </section>
+   <section class="card stack"><h2>Anwendung</h2>
+    <div><h3 style="color:var(--estro)">Oestrogel</h3><ul class="tips small">
+     <li>Pumpe ganz herunterdrücken; beim ersten Gebrauch mehrmals pumpen und diese Dosis verwerfen.</li>
+     <li>Morgens nach dem Duschen auf trockene Haut, grossflächig an Schultern und Armen.</li>
+     <li>Nie auf die Brüste, nicht auf den Bauch (schlechte Aufnahme), nicht auf gereizte oder gerötete Haut.</li>
+     <li>Etwa 2 Minuten trocknen lassen, dann anziehen. Andere, besonders Kinder, sollen die Stelle nicht berühren.</li>
+     <li>Nicht gleichzeitig mit fetthaltiger Creme, Sonnencreme oder Bodylotion. Vor Schwimmen oder Sonnenbad lieber abends vor dem Schlafen auftragen.</li>
+     <li>Ausnahme, z. B. bei Sonnenbrand: Oberschenkel möglich.</li></ul></div>
+    ${s.utroMode!=="none"?`<div><h3 style="color:var(--utro)">Utrogestan</h3><ul class="tips small">
+     <li>Abends vor dem Schlafengehen, Kapsel unzerkaut schlucken.</li>
+     <li>Macht schläfrig: danach nicht mehr Auto fahren oder Maschinen bedienen.</li>
+     <li>Dosierung und Einnahmetage nach ärztlicher Verordnung.</li></ul></div>`:""}
+    <div><h3>Lesen &amp; Hören</h3><ul class="tips small">
+     <li>Buch: Katrin Schaudig, «Hot Stuff»</li>
+     <li>Podcast: <a href="https://www.villamargarita.swiss/der-podcast" target="_blank" rel="noopener">Villa Margarita</a></li>
+     <li>Podcast: «Hormongesteuert – Der Wechseljahre-Podcast» mit Dr. Katrin Schaudig</li></ul></div>
+   </section>
+   <section class="card stack" id="einstellungen"><h2>Einstellungen</h2>
+    <label class="f" for="sName">Dein Name (für die Begrüssung)<input type="text" id="sName" data-set="name" value="${esc(s.name)}" required maxlength="40" autocomplete="given-name"></label>
+    <label class="f" for="sStart">Therapiebeginn<input type="date" id="sStart" data-set="start" value="${esc(s.start)}"></label>
+    <div class="f"><span>Oestrogel, verordnete Hübe pro Tag</span><div class="chips estro">${[1,2,3,4].map(n=>`<button class="chip" aria-pressed="${s.estroPumps==n}" data-action="setPumps" data-v="${n}">${n} ${n==1?"Hub":"Hübe"}</button>`).join("")}</div><span class="tiny">1 Hub = 1,25 g Gel = 0,75 mg Estradiol</span></div>
+    <div class="f"><span>Utrogestan</span><div class="chips utro">${[["none","nehme ich nicht"],["daily","täglich"],["range","bestimmte Tage im Monat"]].map(([k,l])=>`<button class="chip" aria-pressed="${s.utroMode===k}" data-action="setUmode" data-v="${k}">${l}</button>`).join("")}</div></div>
+    ${s.utroMode==="range"?`<div class="grid2"><label class="f" for="uFrom">vom Tag<input type="number" min="1" max="31" id="uFrom" data-set="utroFrom" value="${esc(s.utroFrom)}"></label><label class="f" for="uTo">bis Tag<input type="number" min="1" max="31" id="uTo" data-set="utroTo" value="${esc(s.utroTo)}"></label></div>`:""}
+    ${s.utroMode!=="none"?`<div class="f"><span>Kapselstärke</span><div class="chips utro">${[100,200].map(n=>`<button class="chip" aria-pressed="${s.utroMg==n}" data-action="setUmg" data-v="${n}">${n} mg</button>`).join("")}</div></div>`:""}
+    <div class="divider"></div>
+    <h3>Vorrat</h3>
+    <div class="grid2"><label class="f" for="sBottle">Oestrogel-Flasche angebrochen am<input type="date" id="sBottle" data-set="bottleDate" value="${esc(s.bottleDate)}"></label>
+     <label class="f" for="sBottleSize">Flaschengrösse (g)<input type="number" min="10" id="sBottleSize" data-set="bottleSize" value="${esc(s.bottleSize)}"></label></div>
+    ${s.utroMode!=="none"?`<div class="grid2"><label class="f" for="sPack">Utrogestan-Packung angebrochen am<input type="date" id="sPack" data-set="packDate" value="${esc(s.packDate)}"></label>
+     <label class="f" for="sPackSize">Kapseln pro Packung<input type="number" min="1" id="sPackSize" data-set="packSize" value="${esc(s.packSize)}"></label></div>`:""}
+   </section>
+   <section class="card stack"><h2>Datensicherung</h2>
+    <div class="small">Alle Tagebucheinträge bleiben auf diesem Handy. Es wird kein Konto benötigt und es werden keine Tagebuchdaten an einen Server übertragen. Bei einem Gerätewechsel oder wenn Browserdaten gelöscht werden, brauchst du eine Sicherungsdatei.</div>
+    <div class="row"><button class="btn" data-action="exportFile">Sicherung herunterladen</button><button class="btn" data-action="exportData">Sicherung kopieren</button><label class="btn" for="importFile" style="display:inline-block">Sicherung laden …</label><input type="file" id="importFile" accept=".json,.txt,application/json,text/plain" hidden></div>
+    <span class="small muted" id="expMsg"></span>
+    <details><summary class="small">Sicherung als Text einfügen</summary><div class="stack" style="margin-top:8px"><textarea id="importText" placeholder="Kopierte Sicherung hier einfügen"></textarea><button class="btn" data-action="importText" style="align-self:flex-start">Einlesen</button></div></details>
+    ${!demo?`<button class="btn ghost" data-action="demoOn" style="align-self:flex-start">Beispieldaten ansehen</button>`:""}
+   </section>
+   <div class="small muted" style="padding:0 4px 8px">Dieses Tagebuch hilft beim Festhalten und Besprechen. Es ersetzt keine ärztliche Beratung; Dosis und Einnahme immer nach Verordnung.</div>
+  </div>`;
+}
+function buildReport(){
+  const to=today(); const from=reportRange==="all"?rangeFrom("all"):rangeFrom(Number(reportRange));
+  const s=S.settings; const ad=adherence(from,to); const L=[];
+  const name=s.name?s.name+" – ":"";
+  L.push(`${name}Wechseljahre-Tagebuch`);
+  L.push(`Zeitraum: ${fmtDate(from)} bis ${fmtDate(to)}`);
+  if(therapyStart()) L.push(`Therapiebeginn: ${fmtDate(therapyStart())}`);
+  L.push("");
+  L.push("THERAPIE");
+  L.push(`Oestrogel: ${s.estroPumps} ${s.estroPumps==1?"Hub":"Hübe"}/Tag (${fmt1(s.estroPumps*PUMP_MG)} mg Estradiol), angewendet an ${ad.eOn} von ${ad.eDue} Tagen${ad.eDue?` (${Math.round(ad.eOn/ad.eDue*100)} %)`:""}`);
+  if(s.utroMode!=="none") L.push(`Utrogestan: ${s.utroMg} mg abends, ${s.utroMode==="daily"?"täglich":`Tag ${s.utroFrom}–${s.utroTo} im Monat`}, eingenommen an ${ad.uOn} von ${ad.uDue} vorgesehenen Tagen`);
+  const doses={}; daysInRange(from,to).forEach(d=>{const x=S.days[d]; if(x&&x.e.on) doses[x.e.p]=(doses[x.e.p]||0)+1;});
+  if(Object.keys(doses).length>1) L.push("Tatsächliche Hübe: "+Object.entries(doses).map(([k,v])=>`${k} ${k==1?"Hub":"Hübe"} an ${v} Tagen`).join(", "));
+  const ms=sortedMrs();
+  if(ms.length){
+    L.push(""); L.push("MENOPAUSE RATING SCALE (0–44)");
+    ms.forEach(m=>L.push(`${fmtDate(m.date)}: ${mrsTotal(m)} (körperlich ${mrsSub(m,"soma")}, psychisch ${mrsSub(m,"psych")}, urogenital ${mrsSub(m,"uro")})`));
+    if(ms.length>1){const f=ms[0],l=ms[ms.length-1]; L.push("Einzelwerte Start → zuletzt:");
+      MRS.forEach((q,i)=>{if((f.s[i]||0)||(l.s[i]||0)) L.push(`  ${q[0]}: ${LEVELS[f.s[i]||0]} → ${LEVELS[l.s[i]||0]}`);});}
+  }
+  const ds=daysInRange(from,to).map(d=>S.days[d]).filter(Boolean);
+  const hf=ds.map(d=>d.hf).filter(v=>v!=null), sl=ds.map(d=>d.sl).filter(Boolean), mo=ds.map(d=>d.mo).filter(Boolean), en=ds.map(d=>d.en).filter(Boolean);
+  if(hf.length||sl.length){
+    L.push(""); L.push("TAGESBEFINDEN (Durchschnitt)");
+    if(hf.length) L.push(`Hitzewallungen: ${fmt1(avg(hf))} pro Tag (${hf.length} Tage erfasst)`);
+    if(sl.length) L.push(`Schlaf: ${fmt1(avg(sl))} von 5`);
+    if(mo.length) L.push(`Stimmung: ${fmt1(avg(mo))} von 5`);
+    if(en.length) L.push(`Energie: ${fmt1(avg(en))} von 5`);
+  }
+  const bl=ds.filter(d=>d.bl&&d.bl!=="none"); const lbl=Object.fromEntries(BLEED);
+  L.push(""); L.push("BLUTUNGEN");
+  L.push(bl.length?bl.map(d=>`${fmtDate(d.date)} ${lbl[d.bl]}`).join("; "):"keine erfasst");
+  const fxc={}; ds.forEach(d=>(d.fx||[]).forEach(x=>fxc[x]=(fxc[x]||0)+1));
+  if(Object.keys(fxc).length){L.push(""); L.push("BEGLEITERSCHEINUNGEN"); L.push(Object.entries(fxc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k}: ${v} Tage`).join(", "));}
+  const notes=ds.filter(d=>d.note&&d.note.trim()).slice(-8);
+  if(notes.length){L.push(""); L.push("NOTIZEN"); notes.forEach(d=>L.push(`${fmtDate(d.date)}: ${d.note.trim()}`));}
+  const qs=s.questions.filter(q=>!q.done);
+  if(qs.length){L.push(""); L.push("FRAGEN"); qs.forEach(q=>L.push("– "+q.text));}
+  return L.join("\n");
+}
+
+/* ---------- demo data ---------- */
+function makeDemo(){
+  const D={settings:Object.assign(clone(DEF_SETTINGS),{start:addDays(today(),-62),bottleDate:addDays(today(),-24),packDate:addDays(today(),-20),estroPumps:2}),days:{},mrs:[]};
+  let seed=7; const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280;};
+  for(let i=62;i>=0;i--){
+    const d=addDays(today(),-i); const prog=(62-i)/62;
+    const eOn=rnd()>0.06||i===0, uOn=false; rnd();
+    const hf=Math.max(0,Math.round(7*(1-prog*0.75)+(rnd()*3-1.5)));
+    const sl=Math.min(5,Math.max(1,Math.round(2+prog*2+(rnd()*1.6-0.8))));
+    const mo=Math.min(5,Math.max(1,Math.round(2.4+prog*1.6+(rnd()*1.6-0.8))));
+    const en=Math.min(5,Math.max(1,Math.round(2.2+prog*1.6+(rnd()*1.6-0.8))));
+    const fx=[]; if(rnd()<0.15*(1-prog)+0.03)fx.push("Brustspannen"); if(rnd()<0.08)fx.push("Kopfschmerzen"); if(rnd()<0.1)fx.push("Blähungen");
+    D.days[d]={date:d,e:{on:eOn,p:i>40?1:2,t:"07:"+pad(10+Math.floor(rnd()*40)),s:SITES[Math.floor(rnd()*2)]},u:{on:uOn,mg:100,t:"22:"+pad(Math.floor(rnd()*50))},
+      hf,sl,mo,en,bl:(i===48||i===47)?"spot":(i===20?"light":"none"),fx,note:i===41?"Dosis auf 2 Hübe erhöht (Rücksprache Praxis)":""};
+  }
+  const s0=[3,1,3,2,3,1,3,2,1,2,2], s1=[2,1,2,2,2,1,2,2,1,2,2], s2=[1,0,2,1,1,0,2,1,1,2,1], s3=[1,0,1,1,1,0,1,1,1,2,1];
+  [[62,s0],[42,s1],[21,s2],[2,s3]].forEach(([i,s],k)=>D.mrs.push({id:"m-demo"+k,date:addDays(today(),-i),s,note:"",ts:k}));
+  return D;
+}
+
+/* ---------- render ---------- */
+function needsName(){return !demo&&!(S.settings.name||"").trim();}
+function vOnboarding(){
+  return `<section class="card stack welcome onboard" aria-label="Willkommen">
+    <div class="eyebrow">Wechseljahre-Tagebuch</div>
+    <h1>Willkommen</h1>
+    <div class="small">Bevor es losgeht: Wie heisst du? Dein Vorname wird nur für die persönliche Begrüssung verwendet.</div>
+    <form id="nameForm" class="stack" novalidate>
+      <label class="f" for="obName">Dein Vorname<input type="text" id="obName" name="vorname" required maxlength="40" autocomplete="given-name" autocapitalize="words" enterkeyhint="done" aria-describedby="obHint obErr"></label>
+      <div id="obErr" class="small" role="alert" style="color:var(--danger,#b3261e)"></div>
+      <button class="btn primary" type="submit" style="align-self:flex-start">Weiter</button>
+    </form>
+    <div id="obHint" class="small muted">Der Name wird ausschliesslich auf diesem Gerät gespeichert. Es gibt keine Anmeldung und keine Übertragung an einen Server.</div>
+  </section>`;
+}
+function render(){
+  const app=document.getElementById("app");
+  const tabs=document.getElementById("tabs");
+  if(needsName()){
+    app.innerHTML=vOnboarding(); tabs.innerHTML=""; tabs.parentNode.hidden=true;
+    const f=document.getElementById("nameForm"), inp=document.getElementById("obName");
+    f.addEventListener("submit",ev=>{ev.preventDefault();const n=inp.value.trim();
+      if(!n){document.getElementById("obErr").textContent="Bitte gib deinen Vornamen ein.";inp.focus();return;}
+      S.settings.name=n.slice(0,40); saveSettings(); render(); window.scrollTo(0,0);});
+    setTimeout(()=>{try{inp.focus();}catch(e){}},50);
+    return;
+  }
+  tabs.parentNode.hidden=false;
+  const fn={heute:vHeute,kalender:vKalender,fragebogen:vFragebogen,analyse:vAnalyse,mehr:vMehr}[view]||vHeute;
+  app.innerHTML=fn();
+  tabs.innerHTML=TABS.map(([k,l])=>`<a href="#${k}" ${view===k?'aria-current="page"':""}>${IC[k]}<span>${l}</span></a>`).join("");
+  const qf=document.getElementById("qForm");
+  if(qf) qf.addEventListener("submit",ev=>{ev.preventDefault();const t=document.getElementById("qText").value.trim();if(!t)return;S.settings.questions.push({id:"q"+Date.now(),text:t,done:false});saveSettings();render();});
+  const imp=document.getElementById("importFile");
+  if(imp) imp.addEventListener("change",()=>{const f=imp.files&&imp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>importData(String(r.result));r.readAsText(f);});
+}
+function go(v){ if(location.hash!=="#"+v) location.hash=v; else {view=v;render();window.scrollTo(0,0);} }
+function route(){
+  const h=(location.hash||"").replace("#","");
+  view=TABS.find(t=>t[0]===h)?h:"heute";
+  render(); window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",route);
+
+/* ---------- actions ---------- */
+function rerenderKeepScroll(){const y=window.scrollY;render();window.scrollTo(0,y);}
+document.addEventListener("click",ev=>{
+  const el=ev.target.closest("[data-action]"); if(!el) return;
+  const a=el.dataset.action, v=el.dataset.v;
+  if(el.tagName==="INPUT") return; // checkboxes handled on change
+  const d=()=>ensureDay(cur);
+  switch(a){
+    case "closeModal": if(ev.target===el) document.getElementById("modal").innerHTML=""; return;
+    case "dayPrev": cur=addDays(cur,-1); break;
+    case "dayNext": if(cur<today()) cur=addDays(cur,1); break;
+    case "goToday": cur=today(); break;
+    case "welcomeOk": S.settings.welcomed=true; saveSettings(); break;
+    case "toggleE": {const x=d(); x.e.on=!x.e.on; if(x.e.on){ if(!x.e.t&&cur===today()) x.e.t=nowTime(); if(!x.e.p) x.e.p=S.settings.estroPumps; if(!x.e.s) x.e.s=lastSite(); } saveDay(cur); break;}
+    case "toggleU": {const x=d(); x.u.on=!x.u.on; if(x.u.on){ if(!x.u.t&&cur===today()) x.u.t=nowTime(); x.u.mg=x.u.mg||S.settings.utroMg; } saveDay(cur); break;}
+    case "pumps": {const x=d(); x.e.p=Math.max(1,Math.min(6,(Number(x.e.p)||1)+Number(v))); saveDay(cur); break;}
+    case "site": {const x=d(); x.e.s=x.e.s===v?"":v; saveDay(cur); break;}
+    case "umg": {const x=d(); x.u.mg=Number(v); saveDay(cur); break;}
+    case "hf": {const x=d(); const n=(x.hf==null?0:x.hf)+Number(v); x.hf=n<0?null:Math.min(40,n); if(x.hf==null&&Number(v)>0)x.hf=0; saveDay(cur); break;}
+    case "scale": {const x=d(); const n=Number(v); x[el.dataset.k]=x[el.dataset.k]===n?null:n; saveDay(cur); break;}
+    case "bleed": {const x=d(); x.bl=x.bl===v?"":v; saveDay(cur); break;}
+    case "fx": {const x=d(); x.fx=x.fx||[]; x.fx=x.fx.includes(v)?x.fx.filter(y=>y!==v):x.fx.concat(v); saveDay(cur); break;}
+    case "monPrev": {const [y,m]=calMonth.split("-").map(Number);const dt=new Date(y,m-2,1);calMonth=dt.getFullYear()+"-"+pad(dt.getMonth()+1);break;}
+    case "monNext": {const [y,m]=calMonth.split("-").map(Number);const dt=new Date(y,m,1);const nm=dt.getFullYear()+"-"+pad(dt.getMonth()+1);if(nm<=today().slice(0,7))calMonth=nm;break;}
+    case "openDay": cur=v; go("heute"); return;
+    case "mrsNew": mrsDraft={id:"m-"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),date:today(),s:Array(11).fill(null),note:"",existing:false}; window.scrollTo(0,0); break;
+    case "mrsEdit": {const m=S.mrs.find(x=>x.id===v); if(m){mrsDraft=Object.assign(clone(m),{existing:true});window.scrollTo(0,0);} break;}
+    case "mrsSet": mrsDraft.s[Number(el.dataset.i)]=Number(v); break;
+    case "mrsCancel": mrsDraft=null; break;
+    case "mrsSave": {const m={id:mrsDraft.id,date:mrsDraft.date||today(),s:mrsDraft.s.map(x=>x||0),note:mrsDraft.note||"",ts:Date.now()};
+      S.mrs=S.mrs.filter(x=>x.id!==m.id).concat(m); saveMrs(m); mrsDraft=null; window.scrollTo(0,0); break;}
+    case "mrsDelete": confirmBox("Diesen Fragebogen löschen?","Löschen",()=>{deleteMrs(mrsDraft.id);mrsDraft=null;render();}); return;
+    case "goMrs": go("fragebogen"); return;
+    case "goSettings": go("mehr"); setTimeout(()=>{const e=document.getElementById("einstellungen");if(e)e.scrollIntoView();},50); return;
+    case "range": range=v==="all"?"all":Number(v); break;
+    case "repRange": reportRange=v; break;
+    case "copyReport": copyText(buildReport(),"copyMsg","Kopiert."); return;
+    case "qDel": S.settings.questions=S.settings.questions.filter(q=>q.id!==v); saveSettings(); break;
+    case "setPumps": S.settings.estroPumps=Number(v); saveSettings(); break;
+    case "setUmode": S.settings.utroMode=v; saveSettings(); break;
+    case "setUmg": S.settings.utroMg=Number(v); if(!S.settings.packDate) S.settings.packSize=Number(v)===200?15:30; saveSettings(); break;
+    case "newBottle": S.settings.bottleDate=today(); saveSettings(); break;
+    case "newPack": S.settings.packDate=today(); saveSettings(); break;
+    case "exportData": copyText(JSON.stringify({app:"wj-tagebuch",v:1,exported:new Date().toISOString(),settings:S.settings,days:S.days,mrs:S.mrs}),"expMsg","Sicherung kopiert."); return;
+    case "exportFile": downloadBackup(); return;
+    case "importText": importData(document.getElementById("importText").value); return;
+    case "demoOn": if(!demo){REAL=S;S=makeDemo();demo=true;go("analyse");} return;
+    case "demoOff": if(demo){S=REAL;REAL=null;demo=false;mrsDraft=null;} break;
+    default: return;
+  }
+  rerenderKeepScroll();
+});
+document.addEventListener("change",ev=>{
+  const el=ev.target;
+  if(el.dataset.action==="qDone"){const q=S.settings.questions.find(x=>x.id===el.dataset.v);if(q){q.done=el.checked;saveSettings();rerenderKeepScroll();}return;}
+  if(el.dataset.set==="name"&&!el.value.trim()){el.value=S.settings.name||"";toast("Der Vorname darf nicht leer sein.");return;}
+  if(el.dataset.set){const k=el.dataset.set; let val=el.dataset.set==="name"?el.value.trim().slice(0,40):el.value; if(el.type==="number") val=val===""?DEF_SETTINGS[k]:Number(val); S.settings[k]=val; saveSettings(); rerenderKeepScroll(); return;}
+  if(el.dataset.field&&el.type==="time"){const x=ensureDay(cur);const [a,b]=el.dataset.field.split(".");x[a][b]=el.value;saveDay(cur);return;}
+  if(el.dataset.mrs==="date"&&mrsDraft){mrsDraft.date=el.value;return;}
+});
+document.addEventListener("input",ev=>{
+  const el=ev.target;
+  if(el.dataset.field==="note"){const x=ensureDay(cur);x.note=el.value;lsSave();clearTimeout(savedTimer);savedTimer=setTimeout(flashSaved,1200);return;}
+  if(el.dataset.mrs==="note"&&mrsDraft){mrsDraft.note=el.value;return;}
+});
+function lastSite(){
+  const ks=Object.keys(S.days).filter(k=>k<cur&&S.days[k].e&&S.days[k].e.s).sort();
+  return ks.length?S.days[ks[ks.length-1]].e.s:"Arme";
+}
+function downloadBackup(){
+  const data={app:"wj-tagebuch",v:1,exported:new Date().toISOString(),settings:S.settings,days:S.days,mrs:S.mrs};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download="wechseljahre-tagebuch-sicherung-"+today()+".json";
+  document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+  const e=document.getElementById("expMsg");if(e)e.textContent="Sicherungsdatei wurde erstellt.";
+}
+function copyText(txt,msgId,okMsg){
+  const show=m=>{const e=document.getElementById(msgId);if(e)e.textContent=m;};
+  try{
+    navigator.clipboard.writeText(txt).then(()=>show(okMsg),()=>fallbackCopy(txt,show,okMsg));
+  }catch(e){fallbackCopy(txt,show,okMsg);}
+}
+function fallbackCopy(txt,show,okMsg){
+  const ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();
+  let ok=false;try{ok=document.execCommand("copy");}catch(e){}
+  ta.remove(); show(ok?okMsg:"Kopieren nicht möglich. Bitte Text manuell markieren.");
+}
+function importData(raw){
+  let o; try{o=JSON.parse(raw);}catch(e){toast("Das sieht nicht nach einer gültigen Sicherung aus.");return;}
+  if(!o||!o.days||!o.settings){toast("In dieser Sicherung fehlen Daten.");return;}
+  if(demo){toast("Bitte zuerst die Beispieldaten beenden.");return;}
+  confirmBox(`Sicherung mit ${Object.keys(o.days).length} Tagen und ${(o.mrs||[]).length} Fragebögen einlesen? Vorhandene Einträge an denselben Tagen werden überschrieben.`,"Einlesen",async()=>{
+    Object.assign(S.days,o.days); const ids=new Set((o.mrs||[]).map(m=>m.id));
+    S.mrs=S.mrs.filter(m=>!ids.has(m.id)).concat(o.mrs||[]);
+    S.settings=mergeSettings(o.settings);
+    lsSave(); render(); toast("Sicherung eingelesen.");
+
+  });
+}
+
+/* ---------- boot ---------- */
+route();
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
+}
+})();
+</script>
+</body>
+</html>
