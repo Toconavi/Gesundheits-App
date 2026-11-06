@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wechseljahre-Tagebuch</title>
-<meta name="theme-color" content="#985a75">
+<meta name="theme-color" content="#fffaf4">
 <meta name="description" content="Privates Wechseljahre-Tagebuch – lokal auf diesem Gerät gespeichert.">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icons/icon-192.png" type="image/png">
@@ -223,6 +223,30 @@ input[type=text],input[type=search],input[type=date],input[type=time],input[type
 .hero{background:linear-gradient(125deg,#f7e0e6,#f9ede6 65%,#fff7ef);border-color:#ecd6dc;color:#644656;border-radius:30px}.hero:after{content:"✿";color:#b87996;opacity:.18;right:8px;top:-12px}.hero .eyebrow{color:#9e5b78}.welcome{background:linear-gradient(135deg,var(--utro-soft),var(--surface) 72%)}.info-symbol{background:var(--utro-soft);border-radius:18px}.info-link{background:var(--surface);border-color:var(--line);border-radius:20px;box-shadow:0 6px 16px rgba(103,57,77,.035)}.note{background:var(--soft);border-radius:18px}.status{background:var(--utro-soft);color:var(--ink)}.status i{background:var(--good)}.tile{border-radius:22px}.cal button{border-radius:15px}
 nav.tabs{background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -12px 36px rgba(98,57,78,.075);padding:9px 5px calc(9px + env(safe-area-inset-bottom))}nav.tabs .in{grid-template-columns:repeat(4,1fr)}nav.tabs a{border-radius:18px}nav.tabs a[aria-current="page"]{background:var(--utro-soft);color:var(--estro)}nav.tabs a svg{width:22px;height:22px}.med-results{border-color:var(--line);border-radius:18px}.med-result{background:var(--surface);border-color:var(--line)}.med-result:hover,.med-result:focus{background:var(--utro-soft)}.onboard{margin-top:8vh}
 @media(max-width:390px){.card{padding:18px}.daily-intro{padding:19px 20px}.med-meta{padding-left:61px}}@media(prefers-reduced-motion:reduce){.ring{transition:none}}
+
+
+/* Soft Bloom Light · v1.4.1: creme first, blush accents; keep doctor scales intact */
+:root:not([data-theme="dark"]){
+ --bg:#fffaf4;--surface:#fffefd;--ink:#55464b;--muted:#806e75;
+ --line:#f0e3df;--soft:#fff2ed;--estro:#ad7183;--estro-soft:#fff1f2;
+ --utro:#b98496;--utro-soft:#fff1f4;
+ --good:#60856a;--warn:#a57b3b;--bad:#b65e67;
+ --good-soft:#edf5eb;--warn-soft:#fff4e4;--bad-soft:#ffeded;
+ color-scheme:light;
+}
+body{background-image:radial-gradient(ellipse at 90% 0%,rgba(248,211,210,.12),transparent 42%)}
+.card{box-shadow:0 7px 24px rgba(116,76,78,.035)}
+.card.estro{background:linear-gradient(125deg,#fff8f3,var(--surface) 78%)}
+.card.utro{background:linear-gradient(125deg,#fff5f5,var(--surface) 78%)}
+.card.estro:after,.card.utro:after{opacity:.035}
+.daily-intro{background:linear-gradient(115deg,#fff5ed,#ffedf0 100%);border-color:#f2dfdd;color:#654f56}
+.daily-intro .flower{opacity:.055}
+.hero{background:linear-gradient(120deg,#fff1eb,#fff6f0 70%,#fffaf6);border-color:#f0dfda;color:#654f56}
+.hero:after{opacity:.06}
+.btn.primary{background:#a96b81;border-color:#a96b81;color:#fff}
+.med-extra{background:linear-gradient(145deg,#fffefd,#fff7f5 140%)}
+nav.tabs{box-shadow:0 -7px 24px rgba(116,76,78,.045)}
+nav.tabs a[aria-current="page"]{background:#fff0f1;color:#9b5d75}
 
 </style>
 </head>

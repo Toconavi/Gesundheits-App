@@ -1,4 +1,4 @@
-const CACHE = "wechseljahre-tagebuch-v14-icon2";
+const CACHE = "wechseljahre-tagebuch-v141-cream";
 const CORE = ["./", "./index.html", "./medcatalog.js", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE.map(u => new Request(u, { cache: "reload" })))).then(() => self.skipWaiting()));
