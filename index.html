@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wechseljahre-Tagebuch</title>
-<meta name="theme-color" content="#2a8a98">
+<meta name="theme-color" content="#985a75">
 <meta name="description" content="Privates Wechseljahre-Tagebuch – lokal auf diesem Gerät gespeichert.">
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="./icons/icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
 <style>
 /* Layout idea: a phone-first diary with a bottom tab bar; Oestrogel is always teal, Utrogestan always rose, as on the doctor's leaflet. */
@@ -208,6 +208,22 @@ nav.tabs a svg{width:23px;height:23px}
 
 
 .med-item{padding:12px 0;border-bottom:1px solid var(--line);display:grid;gap:8px}.med-item:last-child{border-bottom:0}.med-results{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:12px}.med-result{display:block;width:100%;padding:12px;text-align:left;background:var(--surface);border:0;border-bottom:1px solid var(--line);color:var(--ink);font:inherit}.med-result:focus,.med-result:hover{background:var(--soft)}
+
+/* v1.3 Soft Bloom — complete warm visual redesign */
+:root,:root[data-theme="light"]{--bg:#fbf5f0;--surface:#fffdfa;--ink:#493943;--muted:#806f79;--line:#ecdcd9;--soft:#f7eae7;--estro:#a55e79;--estro-soft:#f9e5ea;--utro:#ad738d;--utro-soft:#f8e9ef;--good:#5e896e;--warn:#a87b3b;--bad:#b75f62;--good-soft:#e8f1e8;--warn-soft:#f8eedc;--bad-soft:#fae5e3;--display:Georgia,"Times New Roman",serif;--body:system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#271f29;--surface:#362b37;--ink:#fff0f1;--muted:#d1b6c2;--line:#604957;--soft:#4a3544;--estro:#e7a2bb;--estro-soft:#553746;--utro:#e9a8c0;--utro-soft:#573b4b;--good:#a8cdb1;--warn:#e8c186;--bad:#f0a4a3;--good-soft:#344c3c;--warn-soft:#50412f;--bad-soft:#57383b}}
+:root[data-theme="dark"]{--bg:#271f29;--surface:#362b37;--ink:#fff0f1;--muted:#d1b6c2;--line:#604957;--soft:#4a3544;--estro:#e7a2bb;--estro-soft:#553746;--utro:#e9a8c0;--utro-soft:#573b4b;--good:#a8cdb1;--warn:#e8c186;--bad:#f0a4a3;--good-soft:#344c3c;--warn-soft:#50412f;--bad-soft:#57383b}
+html,body{background:var(--bg);color:var(--ink)}body{background-image:radial-gradient(ellipse at 95% 0%,rgba(224,168,184,.22),transparent 35%),radial-gradient(ellipse at 0% 42%,rgba(233,202,187,.13),transparent 36%)}
+.wrap{max-width:650px;padding:calc(26px + env(safe-area-inset-top)) 18px 32px}h1,h2{font-family:var(--display);font-weight:500;letter-spacing:-.035em}h1{font-size:clamp(2.1rem,7.4vw,2.75rem);line-height:1.1}h2{font-size:1.46rem;line-height:1.2}h3{font-weight:650}.eyebrow{color:var(--estro);font-size:.7rem;letter-spacing:.16em}.top{padding:5px 1px 0;margin-bottom:24px}.top h1{margin-top:7px}.stack{gap:17px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:27px;padding:22px;box-shadow:0 12px 34px rgba(103,57,77,.055)}.card.estro,.card.utro{border:1px solid var(--line);background:linear-gradient(135deg,var(--estro-soft),var(--surface) 68%)}.card.utro{background:linear-gradient(135deg,var(--utro-soft),var(--surface) 68%)}.card.estro:before,.card.utro:before{height:0}.card.estro:after,.card.utro:after{content:"✿";position:absolute;right:13px;top:-30px;font-family:Georgia,serif;font-size:112px;line-height:1;color:var(--estro);opacity:.075;pointer-events:none}
+.btn{border-radius:999px;min-height:45px;padding:11px 18px;font-weight:650}.btn.primary{background:#985a75;border-color:#985a75;color:#fff}.btn.ghost{border-color:var(--line);background:var(--surface)}.iconbtn{border-radius:50%}.chip{border-radius:999px;border-color:var(--line);min-height:42px}.chip[aria-pressed="true"],.seg button[aria-pressed="true"]{background:var(--estro-soft);color:var(--ink);border-color:var(--estro)}.seg button{border-radius:15px;min-height:45px}
+input[type=text],input[type=search],input[type=date],input[type=time],input[type=number],select,textarea{background:var(--surface);border-color:var(--line);border-radius:15px;min-height:46px}.take{gap:15px;min-height:55px;position:relative;z-index:1}.ring{width:49px;height:49px;border-radius:17px;border:2px solid var(--estro);color:var(--estro);font-size:1.3rem;transition:background .15s,transform .15s}.estro .on .ring,.med-take.on .ring{background:var(--estro);border-color:var(--estro);color:#fff}.utro .ring{border-color:var(--utro);color:var(--utro)}.utro .on .ring{background:var(--utro);border-color:var(--utro);color:#fff}.take .t1{font-family:var(--display);font-size:1.28rem;font-weight:600;letter-spacing:-.02em}.take .small{line-height:1.5}
+.med-extra{background:linear-gradient(145deg,var(--surface),var(--utro-soft) 160%)}.med-item{padding:17px 0;border-color:var(--line);gap:8px}.med-take .ring{color:var(--estro);border-color:var(--estro)}.med-meta{padding-left:64px}.med-skip{border:0;background:transparent;color:var(--muted);text-decoration:underline;text-underline-offset:3px;font-size:.78rem;padding:5px 0;text-align:left}.med-skip.is-skipped{color:var(--bad);font-weight:700}
+.daily-intro{position:relative;overflow:hidden;background:linear-gradient(120deg,#f6e1e3,#f8ece5 72%,#f7e6e6);border:1px solid #efd6d8;border-radius:27px;padding:22px 26px;color:#654757}.daily-intro strong{font-family:Georgia,serif;font-size:1.3rem;font-weight:500;position:relative;z-index:1}.daily-intro p{font-size:.88rem;line-height:1.55;margin:8px 0 0;max-width:27rem;position:relative;z-index:1}.daily-intro .flower{position:absolute;right:8px;top:-34px;font-size:128px;color:#b77990;opacity:.13;line-height:1}
+.hero{background:linear-gradient(125deg,#f7e0e6,#f9ede6 65%,#fff7ef);border-color:#ecd6dc;color:#644656;border-radius:30px}.hero:after{content:"✿";color:#b87996;opacity:.18;right:8px;top:-12px}.hero .eyebrow{color:#9e5b78}.welcome{background:linear-gradient(135deg,var(--utro-soft),var(--surface) 72%)}.info-symbol{background:var(--utro-soft);border-radius:18px}.info-link{background:var(--surface);border-color:var(--line);border-radius:20px;box-shadow:0 6px 16px rgba(103,57,77,.035)}.note{background:var(--soft);border-radius:18px}.status{background:var(--utro-soft);color:var(--ink)}.status i{background:var(--good)}.tile{border-radius:22px}.cal button{border-radius:15px}
+nav.tabs{background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -12px 36px rgba(98,57,78,.075);padding:9px 5px calc(9px + env(safe-area-inset-bottom))}nav.tabs .in{grid-template-columns:repeat(4,1fr)}nav.tabs a{border-radius:18px}nav.tabs a[aria-current="page"]{background:var(--utro-soft);color:var(--estro)}nav.tabs a svg{width:22px;height:22px}.med-results{border-color:var(--line);border-radius:18px}.med-result{background:var(--surface);border-color:var(--line)}.med-result:hover,.med-result:focus{background:var(--utro-soft)}.onboard{margin-top:8vh}
+@media(max-width:390px){.card{padding:18px}.daily-intro{padding:19px 20px}.med-meta{padding-left:61px}}@media(prefers-reduced-motion:reduce){.ring{transition:none}}
+
 </style>
 </head>
 <body>
@@ -415,9 +431,18 @@ const IC={
   medikamente:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="8" width="16" height="8" rx="4"/><path d="M12 8v8"/></svg>',
   mehr:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18" cy="12" r="1.8"/></svg>'
 };
-const TABS=[["heute","Heute"],["kalender","Kalender"],["fragebogen","Fragebogen"],["analyse","Analyse"],["medikamente","Medis"],["mehr","Mehr"]];
+const TABS=[["heute","Heute"],["verlauf","Verlauf"],["medikamente","Medis"],["mehr","Mehr"]];
 
 
+IC.verlauf='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19h16M6 16V9M12 16V5M18 16v-5"/></svg>';
+function vVerlauf(){
+ return `${demoBanner()}<div class="top"><div><div class="eyebrow">Dein persönlicher Rückblick</div><h1>Mein Verlauf</h1></div></div>
+ <div class="stack"><p class="muted small">Deine Einträge, Entwicklungen und der ärztliche Fragebogen.</p>
+ <a class="info-link" href="#kalender">${IC.kalender}<span>Kalender<small>Einträge nach Tagen ansehen</small></span><span class="arrow" aria-hidden="true">›</span></a>
+ <a class="info-link" href="#analyse">${IC.analyse}<span>Auswertungen<small>Veränderungen und Muster im Überblick</small></span><span class="arrow" aria-hidden="true">›</span></a>
+ <a class="info-link" href="#fragebogen">${IC.fragebogen}<span>Ärztlicher Fragebogen<small>Ärztlich vorgegebene Bewertung unverändert</small></span><span class="arrow" aria-hidden="true">›</span></a>
+ </div>`;
+}
 /* ---------- Medikamente: lokal, keine Dosierungsempfehlungen ---------- */
 function medDue(m,date){
   if(!m.days||!m.days.length)return true;
@@ -425,10 +450,11 @@ function medDue(m,date){
 }
 function medLog(date,id){return ((S.medLogs||{})[date]||{})[id]||null;}
 function medToday(){
-  if(!(S.meds||[]).length)return `<section class="card stack"><h2>Weitere Medikamente</h2><p class="muted small">Zusätzliche Medikamente und ihre Einnahme dokumentieren.</p><button class="btn" data-action="goMeds">Medikamente verwalten</button></section>`;
-  return `<section class="card stack"><div class="row between"><h2>Weitere Medikamente</h2><button class="btn ghost" data-action="goMeds">Verwalten</button></div>
-  ${(S.meds||[]).filter(m=>m.active!==false).map(m=>{const log=medLog(cur,m.id);const due=medDue(m,cur);return `<div class="med-item"><div class="row between"><div><strong>${esc(m.name)}</strong><div class="small muted">${esc(m.amount||'Menge nicht angegeben')} · ${esc(m.slot||'Zeit nach Bedarf')}${due?'':' · heute nicht geplant'}</div></div><button class="btn ${log&&log.status==='taken'?'primary':''}" data-action="medTaken" data-v="${esc(m.id)}">${log&&log.status==='taken'?'✓ Eingenommen':'Eingenommen'}</button></div><div class="row"><button class="btn ghost" data-action="medSkipped" data-v="${esc(m.id)}">${log&&log.status==='skipped'?'✓ Ausgelassen':'Ausgelassen'}</button>${log?`<span class="small muted">${log.status==='taken'?'Dokumentiert':'Ausgelassen'}${log.time?' · '+esc(log.time):''}</span>`:''}</div></div>`;}).join('')}
-  <div class="small muted">Erfasst wird die tatsächliche Einnahme, keine automatische Bestätigung.</div></section>`;
+ const meds=(S.meds||[]).filter(m=>m.active!==false&&(medDue(m,cur)||medLog(cur,m.id)));
+ if(!meds.length)return `<section class="card stack med-extra"><h2>Weitere Medikamente</h2><p class="muted small">Heute keine weiteren Einnahmen geplant. Medikamente bei Bedarf kannst du unter «Medis» dokumentieren.</p><button class="btn ghost" data-action="goMeds">Medikamente verwalten</button></section>`;
+ return `<section class="card stack med-extra"><div class="row between"><div><div class="eyebrow">Dein Einnahmeplan</div><h2>Weitere Medikamente</h2></div><button class="btn ghost" data-action="goMeds">Verwalten</button></div>
+ ${meds.map(m=>{const log=medLog(cur,m.id),due=medDue(m,cur),taken=!!log&&log.status==='taken',skipped=!!log&&log.status==='skipped';return `<div class="med-item"><button class="take med-take ${taken?'on':''}" data-action="medTaken" data-v="${esc(m.id)}" aria-pressed="${taken}" aria-label="${esc(m.name)}: ${taken?'Einnahme rückgängig machen':'Als eingenommen markieren'}"><span class="ring">${taken?'✓':''}</span><span><span class="t1">${esc(m.name)}</span><br><span class="small muted">${esc(m.amount||'Menge nicht angegeben')} · ${esc(m.slot||'Nach Bedarf')}${due?'':' · heute nicht geplant'}${taken&&log.time?' · '+esc(log.time)+' Uhr':''}</span></span></button><div class="med-meta"><button class="med-skip ${skipped?'is-skipped':''}" data-action="medSkipped" data-v="${esc(m.id)}" aria-pressed="${skipped}">${skipped?'✓ Ausgelassen':'Ausgelassen markieren'}</button></div></div>`;}).join('')}
+ <p class="tiny muted">Tippe auf den Kreis zum Abhaken. Nochmals tippen macht die Bestätigung rückgängig.</p></section>`;
 }
 function vMedikamente(){
   const found=medQuery.trim().length>=2?(window.WJ_MED_CATALOG||[]).filter(x=>x.n.toLocaleLowerCase('de-CH').includes(medQuery.trim().toLocaleLowerCase('de-CH'))).slice(0,25):[];
@@ -437,7 +463,7 @@ function vMedikamente(){
   <div id="medResults">${medSearchResults(found)}</div>
   <div class="small muted">Swissmedic-Daten vom 01.11.2026 · Suche auf diesem Gerät · zugelassene Humanarzneimittel. Die Liste ist keine Therapieempfehlung.</div>
   <button class="btn ghost" data-action="medManual">Anderes Medikament manuell erfassen</button></section>
-  ${medSelected?`<section class="card stack" id="medFormCard"><h2>${medSelected.manual?'Eigenes Medikament':'Ausgewähltes Medikament'} erfassen</h2><form id="medForm" class="stack"><label class="f">Bezeichnung<input name="name" required maxlength="160" value="${esc(medSelected.name)}"></label><label class="f">Meine verordnete Menge / Einheit<input name="amount" maxlength="90" placeholder="z. B. 1 Tablette, 100 mg, 2 Hübe" required></label><label class="f">Einnahmezeit<select name="slot"><option>Morgens</option><option>Mittags</option><option>Abends</option><option>Nach Bedarf</option></select></label><div class="f"><span>Vorgesehene Wochentage (leer = täglich)</span><div class="row">${[['1','Mo'],['2','Di'],['3','Mi'],['4','Do'],['5','Fr'],['6','Sa'],['0','So']].map(([n,t])=>`<label class="small"><input type="checkbox" name="days" value="${n}"> ${t}</label>`).join('')}</div></div><div class="row"><button class="btn primary" type="submit">Zu meinen Medikamenten</button><button class="btn ghost" type="button" data-action="medCancel">Abbrechen</button></div></form></section>`:''}
+  ${medSelected?`<section class="card stack" id="medFormCard"><h2>${medSelected.manual?'Eigenes Medikament':'Ausgewähltes Medikament'} erfassen</h2><form id="medForm" class="stack"><label class="f">Bezeichnung<input name="name" required maxlength="160" value="${esc(medSelected.name)}"></label><label class="f">Meine verordnete Menge / Einheit<input name="amount" maxlength="90" placeholder="z. B. 1 Tablette, 100 mg, 2 Hübe" required></label><label class="f">Einnahmezeit<select name="slot"><option>Morgens</option><option>Mittags</option><option>Abends</option><option>Nach Bedarf</option></select></label><div class="f"><span>Vorgesehene Wochentage (keine Auswahl = täglich)</span><div class="row">${[['1','Mo'],['2','Di'],['3','Mi'],['4','Do'],['5','Fr'],['6','Sa'],['0','So']].map(([n,t])=>`<label class="small"><input type="checkbox" name="days" value="${n}"> ${t}</label>`).join('')}</div></div><div class="row"><button class="btn primary" type="submit">Zu meinen Medikamenten</button><button class="btn ghost" type="button" data-action="medCancel">Abbrechen</button></div></form></section>`:''}
   <section class="card stack"><h2>Mein Einnahmeplan</h2>${(S.meds||[]).length?(S.meds||[]).map(m=>`<div class="med-item"><div class="row between"><div><strong>${esc(m.name)}</strong><div class="small muted">${esc(m.amount)} · ${esc(m.slot)} · ${m.days&&m.days.length?m.days.map(n=>['So','Mo','Di','Mi','Do','Fr','Sa'][n]).join(', '):'täglich'}</div></div><button class="btn ghost" data-action="medRemove" data-v="${esc(m.id)}">Entfernen</button></div></div>`).join(''):'<p class="muted">Noch keine zusätzlichen Medikamente ausgewählt.</p>'}</section>
   <div class="note"><strong>Wichtig:</strong> Diese Liste dient ausschliesslich zur Dokumentation. Die App prüft keine Wechselwirkungen, gibt keine Dosierungsempfehlungen und ersetzt nicht die ärztliche Verordnung. Oestrogel und Utrogestan bleiben vorerst auch in der bisherigen Therapiedokumentation bestehen – bitte nicht doppelt erfassen.</div>
   </div>`;
@@ -456,6 +482,7 @@ function vHeute(){
   <div class="top"><div><div class="eyebrow">${isToday?esc(fmtLong(cur)):"Eintrag für"}</div><h1>${isToday?esc(greeting()):esc(fmtLong(cur))}</h1>${isToday?`<div class="small muted" style="margin-top:4px">${esc(subGreeting(d))}</div>`:""}</div>
     <div class="row" style="gap:6px;flex-wrap:nowrap"><button class="iconbtn" data-action="dayPrev" aria-label="Vorheriger Tag">‹</button><button class="iconbtn" data-action="dayNext" aria-label="Nächster Tag" ${isToday?"disabled":""}>›</button></div></div>
   <div class="stack">
+    ${isToday?`<div class="daily-intro"><span class="flower" aria-hidden="true">✿</span><strong>Ein Moment nur für dich ♥</strong><p>Alles, was du heute festhältst, hilft dir, deinen eigenen Weg besser zu verstehen.</p></div>`:''}
     ${welcomeCard()}
     ${!isToday?`<button class="btn ghost" data-action="goToday" style="align-self:flex-start">Zurück zu heute</button>`:""}
     ${st>1&&isToday?`<div class="note">Oestrogel seit <b class="num">${st}</b> Tagen in Folge eingetragen.</div>`:""}
@@ -952,9 +979,9 @@ function render(){
     return;
   }
   tabs.parentNode.hidden=false;
-  const fn={heute:vHeute,kalender:vKalender,fragebogen:vFragebogen,analyse:vAnalyse,medikamente:vMedikamente,mehr:vMehr,info:vInfo}[view]||vHeute;
+  const fn={heute:vHeute,verlauf:vVerlauf,kalender:vKalender,fragebogen:vFragebogen,analyse:vAnalyse,medikamente:vMedikamente,mehr:vMehr,info:vInfo}[view]||vHeute;
   app.innerHTML=fn();
-  tabs.innerHTML=TABS.map(([k,l])=>`<a href="#${k}" ${(view===k||(view==="info"&&k==="mehr"))?'aria-current="page"':""}>${IC[k]}<span>${l}</span></a>`).join("");
+  tabs.innerHTML=TABS.map(([k,l])=>`<a href="#${k}" ${(view===k||(view==="info"&&k==="mehr")||(["kalender","fragebogen","analyse"].includes(view)&&k==="verlauf"))?'aria-current="page"':""}>${IC[k]}<span>${l}</span></a>`).join("");
   const mf=document.getElementById("medForm");
   if(mf)mf.addEventListener("submit",ev=>{ev.preventDefault();if(demo)return;const fd=new FormData(mf);const name=String(fd.get("name")||"").trim(),amount=String(fd.get("amount")||"").trim();if(!name||!amount)return;S.meds.push({id:"med-"+Date.now()+"-"+Math.random().toString(36).slice(2,7),name:name.slice(0,160),amount:amount.slice(0,90),slot:String(fd.get("slot")||"Morgens"),days:fd.getAll("days").map(Number),swissmedic:medSelected.z||null,active:true});medSelected=null;medQuery="";lsSave();render();});
   const qf=document.getElementById("qForm");
@@ -965,7 +992,7 @@ function render(){
 function go(v){ if(location.hash!=="#"+v) location.hash=v; else {view=v;render();window.scrollTo(0,0);} }
 function route(){
   const h=(location.hash||"").replace("#","");
-  view=(TABS.find(t=>t[0]===h)||h==="info")?h:"heute";
+  view=(TABS.find(t=>t[0]===h)||["info","kalender","fragebogen","analyse"].includes(h))?h:"heute";
   render(); window.scrollTo(0,0);
 }
 window.addEventListener("hashchange",route);
